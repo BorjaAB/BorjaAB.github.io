@@ -5,6 +5,7 @@ date: 2022-10-25 01:20 +0200
 author: BorjaAB
 category:
 - Markdown
+- Ejemplos
 tags: Markdown
 pin: false
 image:
@@ -12,6 +13,8 @@ image:
   width: 800
   height: 500
   alt: Banner de la página
+math: true
+mermaid: true
 ---
 ## Titles
 ---
@@ -124,15 +127,15 @@ _shadow effect (visible in light mode)_
   ![Desktop View](../../assets/img/anya.jpg){: width="972" height="589" .w-50 .right}
   Praesent maximus aliquam sapien. Sed vel neque in dolor pulvinar auctor. Maecenas pharetra, sem sit amet interdum posuere, tellus lacus eleifend magna, ac lobortis felis ipsum id sapien. Proin ornare rutrum metus, ac convallis diam volutpat sit amet. Phasellus volutpat, elit sit amet tincidunt mollis, felis mi scelerisque mauris, ut facilisis leo magna accumsan sapien. In rutrum vehicula nisl eget tempor. Nullam maximus ullamcorper libero non maximus. Integer ultricies velit id convallis varius. Praesent eu nisl eu urna finibus ultrices id nec ex. Mauris ac mattis quam. Fusce aliquam est nec sapien bibendum, vitae malesuada ligula condimentum. Phasellus a tortor aliquam, tristique felis sit amet, elementum enim. Integer vestibulum vitae nulla nec pretium.
 
-[//]:## Mermaid SVG
+## Mermaid SVG
 
-[//]:```mermaid
-[//]: gantt
-[//]:  title  Adding GANTT diagram functionality to mermaid
-[//]:  apple :a, 2017-07-20, 1w
-[//]:  banana :crit, b, 2017-07-23, 1d
-[//]:  cherry :active, c, after b a, 1d
-[//]:```
+```mermaid
+ gantt
+ title  Adding GANTT diagram functionality to mermaid
+ apple :a, 2017-07-20, 1w
+ banana :crit, b, 2017-07-23, 1d
+ cherry :active, c, after b a, 1d
+```
 
 ## Mathematics
 

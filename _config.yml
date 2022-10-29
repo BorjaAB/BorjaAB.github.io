@@ -204,8 +204,8 @@ jekyll_compose:
   default_front_matter:
     posts:
       author: BorjaAB
-      category: [ejemplo6,ejemplo7]
-      tags: "ejemplo1, ejemplo2"
+      category: [ejemplo1,ejemplo2]
+      tags: [ejemplo1, ejemplo2]
       pin: false
       image:
         path: "../../assets/img/"
