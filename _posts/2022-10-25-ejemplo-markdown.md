@@ -5,7 +5,8 @@ date: 2022-10-25 01:20 +0200
 author: BorjaAB
 category:
 - Markdown
-tags: ejemplos
+tags:
+- markdown
 pin: false
 math: true
 mermaid: true
