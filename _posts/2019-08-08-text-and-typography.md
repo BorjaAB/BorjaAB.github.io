@@ -1,10 +1,9 @@
 ---
 title: Text and Typography
-description: Examples of text, typography, math equations, diagrams, flowcharts, pictures, videos, and more.
+description: Ejemplos de texto, tipografia, ecuaciones matemáticas, diagramas, flowcharts, fotos, videos, and more.
 author: BorjaAB
 date: 2019-08-08 11:33:00 +0800
-categories: [Blogging, Demo]
-tags: [typography]
+categories: [Tipografía, Ejemplo]
 pin: false
 math: true
 mermaid: true
