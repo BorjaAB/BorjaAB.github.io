@@ -420,7 +420,7 @@ _Inventario y control de los activos de hardware_
 
 - [**Nmap**](https://nmap.org/)
 
-![Desktop View](/assets/img/riesgos_amenazas/nmap.png){: width="972" height="589" }
+![Desktop View](/assets/img/riesgos_amenazas/nmap_usage.png){: width="972" height="589" }
 
 - [**Scapy**](https://scapy.net/), suite de elaboración, manipulación y análisis de paquetes
 
