@@ -269,7 +269,7 @@ _Solo con motivo de representación, esta desactualizada, para información actu
 > La información en la [página web](https://csrc.nist.gov/projects/cybersecurity-framework/filters#/csf/filters) ```TARDA EN CARGAR```.
 {: .prompt-danger }
 
-![Desktop View](/assets/img/riesgos_amenazas/informacion_tarda_cargar.png){: width="972" height="589" }
+![Desktop View](/assets/img/riesgos_amenazas/tarda_cargar.png){: width="972" height="589" }
 _[Subcategorías actualizadas a el NIST CSF 2.0](/assets/img/riesgos_amenazas/info_subcategorias.pdf)_
 
 ### Marco de ciberseguridad del NIST: **Niveles de implementación (Tiers)**
@@ -595,6 +595,8 @@ Recomendaciones para tratar los riesgos
 
 ![Desktop View](/assets/img/riesgos_amenazas/recomendaciones_tratar_riesgos.png){: width="972" height="589" }
 _Recomendaciones para tratar los riesgos_
+
+#### Intrucciones y documentos necesarios para realizar la gestión y análisis de riesgos
 
 [CIS Risk Assessment Metoth (RAM) Versión 2.1 Core Document](/assets/img/riesgos_amenazas/CIS_RAM_v2.1_Core_Document_2022_08.pdf)
 
