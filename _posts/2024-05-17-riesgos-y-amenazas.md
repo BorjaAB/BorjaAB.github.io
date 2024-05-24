@@ -317,7 +317,7 @@ Tres herramientas:
 
 : **Benchmarks** ([CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks)), guías de configuración / hardering de sistemas operativos, dispositivos, redes, aplicaciones y software
 
-: **Controles** ([CIS Controls])(https://www.cisecurity.org/controls), conjunto de acciones para proteger su organización y sus datos de los vectores de ciberataque conocidos
+: **Controles** ([CIS Controls](https://www.cisecurity.org/controls)), conjunto de acciones para proteger su organización y sus datos de los vectores de ciberataque conocidos
 
 : **CIS-Cat** ([versión gratuita](https://learn.cisecurity.org/cis-cat-lite) y [versión de pago](https://www.cisecurity.org/cybersecurity-tools/cis-cat-pro)):
 

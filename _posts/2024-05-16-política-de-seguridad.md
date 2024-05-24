@@ -13,7 +13,7 @@ mermaid: true
 
 ## Introducción
 
-Unsa política de seguridad en Tecnologías de la Información (IT) identifica las normas y procedimientos para todas las personas que acceden y utilizan los activos y recursos IT de una organización.
+Una política de seguridad en Tecnologías de la Información (IT) identifica las normas y procedimientos para todas las personas que acceden y utilizan los activos y recursos IT de una organización.
 
 Para ser efectiva una política de seguridad:
 
