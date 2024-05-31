@@ -42,12 +42,12 @@ Sitting in a cornet a hacker had just set up an open **"rogue"** wireless hotspo
 
 #### 1.1.5 Installing the Virtual Machines
 
-[CyberOps Workstation VM](/assets/img/cyberops_associate/cyberops_workstation.ova)
+CyberOps Workstation VM
 
 MD5 Checksum: 6a70f156715f85c09fbb859c80c4b6c5
 SHA512 Checksum: 2cc44d6585001d99bce5dfc19ed5ef920714ca03
 
-[Security Onion VM](/assets/img/cyberops_associate/security_onion.ova)
+Security Onion VM
 
 MD5 Checksum: 8d65135641b9c94e788909026805ad6b
 SHA512 Checksum: aaca24b0036be5d61dd42a0b3503403e18ae0e12 
