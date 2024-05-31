@@ -7,11 +7,6 @@ category:
 - Cisco
 - Cybersecurity Essentials
 pin: false
-image:
-  path: "/assets/img/cybersecurity_essentials/"
-  width: 800
-  height: 500
-  alt: Banner de la página
 math: true
 mermaid: true
 ---
