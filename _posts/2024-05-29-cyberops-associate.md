@@ -712,22 +712,27 @@ The Msconfig tool opens the System Configuration window. There are five tabs whi
 
 General
 : Three different startup types can be chosen here. Normal loads all drivers and services. Diagnostic loads only basic drivers and services. Selective allows the user to choose what to load on startup.
+
 ![Desktop View](/assets/img/cyberops_associate/system_configuration_general.png)
 
 Boot
 : Any installed operating system can be chosen here to start. There are also options for Safe boot, which is used to troubleshoot startup.
+
 ![Desktop View](/assets/img/cyberops_associate/system_configuration_boot.png)
 
 Services
 : All the installed services are listed here so that they can be chosen to start at startup.
+
 ![Desktop View](/assets/img/cyberops_associate/system_configuration_services.png)
 
 Startup
 : All the applications and services that are configured to automatically begin at startup can be enabled or disabled by opening the task manager from this tab.
+
 ![Desktop View](/assets/img/cyberops_associate/system_configuration_startup.png)
 
 Tool
 : Many common operating system tools can be launched directly from this tab.
+
 ![Desktop View](/assets/img/cyberops_associate/system_configuration_tools.png)
 
 #### 3.2.7 Windows Shutdown
