@@ -582,4 +582,783 @@ When the operating system is istalled, it must be isolated from differences in h
 ![Desktop View](/assets/img/cyberops_associate/hardware_abstraction_layer.png)
 _Basic Windows architecture_
 
-A hardware abstraction layer (HAL) is software that handles all of the communication between the hardware and the kernel.
+A hardware abstraction layer (HAL) is software that handles all of the communication between the hardware and the kernel. The Kernel is the core of the operating system and has control over the entire computer.
+
+In some instances, the kernel still communicates with the hardware directly, so it is not completely independent of the HAL. The HAL also need the kernel to perform some functions.
+
+#### 3.2.2 User Mode and Kernel Mode
+
+There are two different modes in which a CPU operates when the computer has Windows installed: the user mode and the kernel mode.
+
+![Desktop View](/assets/img/cyberops_associate/modes_cpu_operate.png)
+
+Installed applications run in user mode, and operating system code runs in kernel mode. Code that is executing in kernel mode has unrestricted access to the underlying hardware and is capable of executing and CPU instruction. Kernel mode code also can reference any memory address directly. Generally reserved for the most trusted functions of the OS, crashes in code running in kernel mode stop the operation of the entire computer. Conversely, programs such as user applications, run in user mode and have no direct access to hardware or memory locations. User mode code must go through the operating system to access hardware resources. Because of the isolation provided by user mode, crashes in user mode are restricted to the application only and are recoverable. Most of the programs in Windows run in user mode. Device drivers, pieces of software that allow the operating system and a device to communicate, may run in either kernel or user mode, depending on the driver.
+
+All of the code that runs in kernel mode uses the same address space. Kernel-mode drivers have no isolation from the operating system. If an error occurs with the driver running in kernel mode, and it writes to the wrong address space, the operating system or another kernel-mode driver could be adversely affected. In this respect, the driver might crash, causing the entire operating system to crash.
+
+When user mode code runs, it is granted its own restricted address space by the kernel, along with a process created specifically for the application. The reason for this functionality is mainly to prevent applications from changing operating system code that is running at the same time. By having its own process, that application has its own private address space, rendering other applications unable to modify the data in it. This also helps to prevent the operating system and other applications from crashing if that application crashes.
+
+#### 3.2.3 Windows File Systems
+
+A file system is how information is organized on storage media. Some file systems may be a better choice to use than others, depending on the type of media that will be used. The table lists the file systems that Windows supports.
+
+| Windows File System		| Description				|
+| :---------------------------- | :-----------------------------------: |
+| exFAT				| - This is a simple file system supported by many different operating systems.				|
+| 				| - FAT has limitations to the number of partitions, partition sizes, and files sizes that it can address, so it is not usually used for hard drives (HDs) or solid-state drives (SSDs) anymore.	|
+| 				| - Both FAT16 and FAT32 are available to use, with FAT32 being the most common because it has many fewer restriction than FAT16.				|
+| Hierarchical File System Plus (HSF+)		| - The file system is used on MAC OS X computers and allows much longer filenames, file sizes, and partition sizes than previous file systems.			|
+| 				| - Althought it is not supported by Windows without special software, Windows is able to read data from HFS+ partitions.			|
+| Extended File System (EXT)	| - This file system is used with Linux-based computer				|
+| 				| - Althought it is not supported by Windows, Windows is able to read data from EXT partitions with special software.				|
+| New Technology File System (NTFS)		| - This is the most commonly used file system when installing Windows. All versions of Windows and Linux support NTFS.|
+| 				| - Max-OS X computers can only read an NTFS partition. They are able to write to an NTFS partition after installing special drivers. |
+
+NTFS is the most widely used file system for Windows for many reasons. NTFS supports very large files and partitions and it is very compatible with other operating systems. NTFS is also very reliable and supports recovery features. Most importantly, it supports many security features. Data access control is achieved through security descriptors. These security descriptors contain file ownership and permissions all the way down to the file level. NTFS also tracks many time stamps to track file activity. Sometimes referred to as MACE, the timestamps Modify, Access, Create, and Entry Modified are often used in forensic investigations to determine the history of a file or folder. NTFS also supports file system encryption to secure the entire storage media.
+
+Before a storage device such as a disk can be used, it must be formatted with a file system. In turn, before a file system can be put into place on a storage device, the device needs to be partitioned. A hard drive is divided into areas called partitions. Each partition is a logical storage unit that can be formatted to store information, such as data files or applications. During the installation process, most operating systems automatically partition and format the available drive space with a file system such as NTFS.
+
+NTFS formatting creates important structures on the disk for file storage, and tables for recording the locations of files:
+
+- **Partition Boot Sector**: This is the first 16 sectors of the drive. It contains the location of the Master File Table (MFT). The last 16 sectors contain a copy of the boot sector.
+- **Master File Table (MFT)**: This table contains the locations of all the files and directories on the partition, including file attributes such as security information and timestamps.
+- **System Files**: These are hidden files that store information about other volumes and file attributes.
+- **File Area**: The main area of the partition where files and directories are stored.
+
+> When formatting a partition, the previous data may still be recoverable because not all the data is completely removed. The free space can be examined, and files can be retrieved which can compromise security. It is recommended to perform a secure wipe on a drive that is being reused. The secure wipe will write data to the entire drive multiple times to ensure there is no remaining data.
+{: .prompt-info }
+
+#### 3.2.4 Alternate Data Streams
+
+NTFS stores files as a series of attributes, such as the name of the file, or a timestamp. The data which the file contains is stored in the attribute $DATA, and is known as a data stream. By using NTFS, you can connect Alternate Data Streams (ADSs) to the file. This is sometimes used by applications that are storing additional information about the file. The ADS is an important factor when discussing malware. This is because it is easy to hide data in an ADS. An attacker could store malicious code within an ADS that can then be called from a different file.
+
+In the NTFS file system, a file with an ADS is identified after the filename and a colon, for example, Testfile.txt:ADS. This filename indicates an ADS called ADS is associated with the file called Testfile.txt. An example of ADS is shown in the command output.
+
+```bash
+C:\Users\BorjaAB\Documents>echo "Alternate Data Here" > Testfile.txt:ADS
+
+C:\Users\BorjaAB\Documents>dir
+ El volumen de la unidad C es Windows
+ El número de serie del volumen es: A6D0-7BA7
+
+ Directorio de C:\Users\BorjaAB\Documents
+
+31/05/2024  18:11    <DIR>          .
+31/05/2024  18:11    <DIR>          ..
+16/05/2024  19:32    <DIR>          Plantillas personalizadas de Office
+31/05/2024  18:11                 0 Testfile.txt
+               1 archivos              0 bytes
+               3 dirs  63.017.918.464 bytes libres
+
+C:\Users\BorjaAB\Documents>dir /r
+ El volumen de la unidad C es Windows
+ El número de serie del volumen es: A6D0-7BA7
+
+ Directorio de C:\Users\BorjaAB\Documents
+
+31/05/2024  18:11    <DIR>          .
+31/05/2024  18:11    <DIR>          ..
+16/05/2024  19:32    <DIR>          Plantillas personalizadas de Office
+31/05/2024  18:11                 0 Testfile.txt
+                                 24 Testfile.txt:ADS:$DATA
+               1 archivos              0 bytes
+               3 dirs  63.017.963.520 bytes libres
+
+C:\Users\BorjaAB\Documents>more < Testfile.txt:ADS
+"Alternate Data Here"
+
+C:\Users\BorjaAB\Documents>
+```
+
+#### 3.2.5 Windows Boot Process
+
+Many actions occur between the time that the computer power button is pressed and Windows is fully loaded, as shown in the figure. This is known as the Windows Boot process.
+
+![Desktop View](/assets/img/cyberops_associate/windows_boot_process.png)
+_Windows Boot Process_
+
+Two types of computer firmware exist:
+
+- **Basic Input-Output System (BIOS)**: BIOS firmware was created in the early 1980s and works in the same way it did when it was created. As computers evolved, it became difficult for BIOS firmware to support all the new features requested by users.
+- **Unified Extensible Firmware Interface (UEFI)**: UEFI was designed to replace BIOS and support the new features.
+
+In BIOS firmware, the process begins with the BIOS initialization phase. This is when hardware devices are initialized and a power on self-test (POST) is performed to make sure all of these devices are communicating. When the system disk is discovered, the POST ends. The last instruction in the POST is to look for the master boot record (MBR).
+
+The MBR contains a small program that is responsible for locating and loading the operating system. The BIOS executes this code and the operating system starts to load.
+
+In contrast to BIOS firmware, UEFI firmware has a lot of visibility into the boot process. UEFI boots by loading EFI program files, stored as .efi files in a special disk partition, known as the EFI System Partition (ESP).
+
+> A computer that uses UEFI stores boot code in the firmware. This helps to increase the security of the computer at boot time because the computer goes directly into protected mode.
+{: .prompt-info }
+
+Whether the firmware is BIOS or UEFI, after a valid Windows installation is located, the **Bootmgr.exe** file is run. **Bootmgr.exe** switches the system from real mode to protected mode so that all of the system memory can be used.
+
+**Bootmgr.exe** reads the Boot Configuration Database (BCD). The BCD contains any additional code needed to start the computer, along with an indication of whether the computer is coming out of hibernation, or if this is a cold start. If the computer is coming out of hibernation, the boot process continues with **Winresume.exe**. This allows the computer to read the **Hiberfil.sys** file which contains the state of the computer when it was put into hibernation.
+
+If the computer is being booted from a cold start, then the **Winload.exe** file is loaded. The **Winload.exe** file creates a record of the hardware configuration in the registry. The registry is a record of all of the settings, options, hardware, and software the computer has. The registry will be explored in depth later in this chapter. **Winload.exe** also uses Kernel Mode Code Signing (KMCS) to make sure that all drivers are digitally signed. This ensures that the drivers are safe to load as the computer starts.
+
+After the drivers have been examined, **Winload.exe** runs **Ntoskrnl.exe** which starts the Windows kernel and sets up the HAL. Finally, the Session Manager Subsystem (SMSS) reads the registry to create the user environment, start the Winlogon service, and prepare each user’s desktop as they log on.
+
+#### 3.2.6 Windows Startup
+
+There are two important registry items that are used to automatically start applications and services:
+
+- **HKEY_LOCAL_MACHINE**: Several aspects of Windows configuration are stored in this key, including information about services that start with each boot.
+- **HKEY_CURRENT_USER**: Several aspects related to the logged in user are stored in this key, including information about services that start only when the user logs on to the computer.
+
+Different entries in these registry locations define which services and applications will start, as indicated by their entry type. These types include Run, RunOnce, RunServices, RunServicesOnce, and Userinit. These entries can be manually entered into the registry, but it is much safer to use the Msconfig.exe tool. This tool is used to view and change all of the start-up options for the computer. Use the search box to find and open the Msconfig tool.
+
+The Msconfig tool opens the System Configuration window. There are five tabs which contain the configuration options.
+
+General
+: Three different startup types can be chosen here. Normal loads all drivers and services. Diagnostic loads only basic drivers and services. Selective allows the user to choose what to load on startup.
+![Desktop View](/assets/img/cyberops_associate/system_configuration_general.png)
+
+Boot
+: Any installed operating system can be chosen here to start. There are also options for Safe boot, which is used to troubleshoot startup.
+![Desktop View](/assets/img/cyberops_associate/system_configuration_boot.png)
+
+Services
+: All the installed services are listed here so that they can be chosen to start at startup.
+![Desktop View](/assets/img/cyberops_associate/system_configuration_services.png)
+
+Startup
+: All the applications and services that are configured to automatically begin at startup can be enabled or disabled by opening the task manager from this tab.
+![Desktop View](/assets/img/cyberops_associate/system_configuration_startup.png)
+
+Tool
+: Many common operating system tools can be launched directly from this tab.
+![Desktop View](/assets/img/cyberops_associate/system_configuration_tools.png)
+
+#### 3.2.7 Windows Shutdown
+
+It is always best to perform a proper shutdown to turn off the computer. Files that are left open, services that are closed out of order, and applications that hang can all be damaged if the power is turned off without first informing the operating system. The computer needs time to close each application, shut down each service, and record any configuration changes before power is lost.
+
+During shutdown, the computer will close user mode applications first, followed by kernel mode processes. If a user mode process does not respond within a certain amount of time, the OS will display notification and allow the user to wait for the application to respond, or forcibly end the process. If a kernel mode process does not respond, the shutdown will appear to hang, and it may be necessary to shut down the computer with the power button.
+
+There are several ways to shut down a Windows computer: Start menu power options, the command line command **shutdown**, and using **Ctrl+Alt+Delete** and clicking the power icon.
+
+There are three different options from which to choose when shutting down the computer:
+
+- **Shutdown**: Turns the computer off (power off).
+- **Restart**: Re-boots the computer (power off and power on).
+- **Hibernate**: Records the current state of the computer and user environment and stores it in a file. Hibernation allows the user to pick up right where they left off very quickly with all their files and programs still open.
+  
+#### 3.2.8 Processes, Threads, and Services
+
+A Windows application is made up of processes. The application can have one or many processes dedicated to it. A process is any program that is currently executing. Each process that runs is made up of at least one thread. A thread is a part of the process that can be executed. The processor performs calculations on the thread. To configure Windows processes, search for Task Manager. The Processes tab of the Task Manager is shown in the figure.
+The figure shows running processes including applications, background processes, and system processes which are shown within the Processes tab within the Task Manager tool.
+
+![Desktop View](/assets/img/cyberops_associate/task_manager_tool.png)
+_Windows Task Manager_
+
+All of the threads dedicated to a process are contained within the same address space. This means that these threads may not access the address space of any other process. This prevents corruption of other processes. Because Windows multitasks, multiple threads can be executed at the same time. The amount of threads that can be executed at the same time is dependent on the number of the computer’s processors.
+
+Some of the processes that Windows runs are services. These are programs that run in the background to support the operating system and applications. They can be set to start automatically when Windows boots or they can be started manually. They can also be stopped, restarted, or disabled.
+
+Services provide long-running functionality, such as wireless or access to an FTP server. To configure Windows Services, search for services. The Windows Services control panel applet is shown in the figure.
+
+![Desktop View](/assets/img/cyberops_associate/services.png)
+
+> Be very careful when manipulating the settings of these services. Some programs rely on one or more services to operate properly. Shutting down a service may adversely affect applications or other services.
+
+#### 3.2.9 Memory Allocation and Handles
+
+A computer works by storing instructions in RAM until the CPU processes them. The virtual address space for a process is the set of virtual addresses that the process can use. The virtual address is not the actual physical location in memory, but an entry in a page table that is used to translate the virtual address into the physical address.
+
+Each process in a 32-bit Windows computer supports a virtual address space that enables addressing up to 4 gigabytes. Each process in a 64-bit Windows computer supports a virtual address space of 8 terabytes.
+
+Each user space process runs in a private address space, separate from other user space processes. When the user space process needs to access kernel resources, it must use a process handle. This is because the user space process is not allowed to directly access these kernel resources. The process handle provides the access needed by the user space process without a direct connection to it.
+
+A powerful tool for viewing memory allocation is RAMMap, which is shown in the figure. RAMMap is part of the Windows Sysinternals Suite of tools. It can be downloaded from Microsoft. RAMMap provides a wealth of information regarding how Windows has allocated system memory to the kernel, processes, drivers, and applications.
+
+![Desktop View](/assets/img/cyberops_associate/RAMMap.png)
+
+#### 3.2.10 The Windows Registry
+
+Windows stores all of the information about hardware, applications, users, and system settings in a large database known as the registry. The ways that these objects interact are also recorded, such as what files an application opens and all of the property details of folders and applications. The registry is a hierarchical database where the highest level is known as a hive, below that there are keys, followed by subkeys. Values store data and are stored in the keys and subkeys. A registry key can be up to 512 levels deep.
+
+The table lists the five hives of the Windows registry.
+
+| Registry Hive			| Description			|
+| :---------------------------- | :-----------------------------------: |
+| HKEY_CURRENT_USER (HKCU)	| Holds information concerning the currently logged in user	|
+| HKEY_USERS (HKU)		| Holds information concerning all the user accounts on the host. |
+| HKEY_CLASSES_ROOT (HKCR)	| Holds information about object linking and embedding (OLE) registration. OLE allows users to embed objects from other applications (like a spreadsheet) into a single document (like a Word document.) |
+| HKEY_LOCAL_MACHINE (HKLM)	| Holds system-related information. |
+| HKEY_CURRENT_CONFIG (HKCC)	| Holds information about the current hardware profile. |
+
+New hives cannot be created. The registry keys and values in the hives can be created, modified, or deleted by an account with administrative privileges. As shown in the figure, the tool **regedit.exe** is used to modify the registry. Be very careful when using this tool. Minor changes to the registry can have massive or even catastrophic effects.
+
+![Desktop View](/assets/img/cyberops_associate/regedit.png)
+
+Navigation in the registry is very similar to Windows file explorer. Use the left panel to navigate the hives and the structure below it and use the right panel to see the contents of the highlighted item in the left panel. With so many keys and subkeys, the key path can become very long. The path is displayed at the bottom of the window for reference. Because each key and subkey is essentially a container, the path is represented much like a folder in a file system. The backslash (\) is used to differentiate the hierarchy of the database.
+
+Registry keys can contain either a subkey or a value. The different values that keys can contain are as follows:
+
+- **REG_BINARY**: Numbers or Boolean values
+- **REG_DWORD**: Numbers greater than 32 bits or raw data
+- **REG_SZ**: String values
+
+Because the registry holds almost all the operating system and user information, it is critical to make sure that it does not become compromised. Potentially malicious applications can add registry keys so that they start when the computer is started. During a normal boot, the user will not see the program start because the entry is in the registry and the application displays no windows or indication of starting when the computer boots. A keylogger, for example, would be devastating to the security of a computer if it were to start at boot without the user’s knowledge or consent. When performing normal security audits, or remediating an infected system, review the application startup locations within the registry to ensure that each item is known and safe to run.
+
+The registry also contains the activity that a user performs during normal day-to-day computer use. This includes the history of hardware devices, including all devices that have been connected to the computer including the name, manufacturer and serial number. Other information, such as what documents a user and program have opened, where they are located, and when they were accessed is stored in the registry. This is all very useful information when a forensics investigation needs to be performed.
+
+#### 3.2.11 Lab - Exploring Processes, Threads, Handles, and Windows Registry
+
+[Download Sysinternals Suite](https://learn.microsoft.com/es-es/sysinternals/downloads/sysinternals-suite)
+
+[In this lab](/assets/img/cyberops_associate/3.2.11_lab_exploring_processes_threads_handles_and_windows_registry.pdf), you will explore the processes, threads, and handles using Process Explorer in Sysinternals Suite. You will also use the Windows Registry to change a setting.
+
+#### 3.2.12 Check Your Understanding - Identify the Windows Registry Hive
+
+> Check your understanding and identify the Windows registry hive by choosing the BEST answer to the following questions.
+{: .prompt-tip }
+
+Which Windows registry hive stores information about object linking and embedding (OLE) registrations?
+- [x] HKEY_CLASSES_ROOT (HKCR)
+- [ ] HKEY_CURRENT_CONFIG (HKCC)
+- [ ] HKEY_CURRENT_USER (HKCU)
+- [ ] HKEY_LOCAL_MACHINE (HKLM)
+- [ ] HKEY_USERS (HKU)
+
+> The HKEY_CLASSES_ROOT (HKCR) Windows registry hive stores information about object linking and embedding (OLE) registrations.
+{: .prompt-info }
+
+Which Windows registry hive stores information about the current hardware profile?
+- [ ] HKEY_CLASSES_ROOT (HKCR)
+- [x] HKEY_CURRENT_CONFIG (HKCC)
+- [ ] HKEY_CURRENT_USER (HKCU)
+- [ ] HKEY_LOCAL_MACHINE (HKLM)
+- [ ] HKEY_USERS (HKU)
+
+> The HKEY_CURRENT_CONFIG (HKCC) Windows registry hive stores information about the current hardware profile.
+{: .prompt-info }
+
+Which Windows registry hive stores information concerning all the user accounts on the host?
+- [ ] HKEY_CLASSES_ROOT (HKCR)
+- [ ] HKEY_CURRENT_CONFIG (HKCC)
+- [ ] HKEY_CURRENT_USER (HKCU)
+- [ ] HKEY_LOCAL_MACHINE (HKLM)
+- [x] HKEY_USERS (HKU)
+
+> The HKEY_USERS (HKU) Windows registry hive stores information concerning all the user accounts on the host.
+{: .prompt-info }
+
+Which Windows registry hive stores information concerning the currently logged in user?
+- [ ] HKEY_CLASSES_ROOT (HKCR)
+- [ ] HKEY_CURRENT_CONFIG (HKCC)
+- [x] HKEY_CURRENT_USER (HKCU)
+- [ ] HKEY_LOCAL_MACHINE (HKLM)
+- [ ] HKEY_USERS (HKU)
+
+> The HKEY_CURRENT_USER (HKCU)  Windows registry hive stores information concerning the currently logged in user.
+{: .prompt-info }
+
+Which Windows registry hive stores system-related information?
+- [ ] HKEY_CLASSES_ROOT (HKCR)
+- [ ] HKEY_CURRENT_CONFIG (HKCC)
+- [ ] HKEY_CURRENT_USER (HKCU)
+- [x] HKEY_LOCAL_MACHINE (HKLM)
+- [ ] HKEY_USERS (HKU)
+
+> The HKEY_LOCAL_MACHINE (HKLM) Windows registry hive stores information concerning the currently logged in user.
+{: .prompt-info }
+
+#### 3.3.1 Run as Administrator
+
+As a security best practice, it is not recomended to log on to Windows using the Administrator account or an account with administrative privileges. This is because any program that is executed while logged on with those privileges will inherit administrative privileges. Malware that has administrative privileges has full access to all the files and folders on the computer.
+
+#### 3.3.2 Local Users and Domains
+
+As a security best practice, do not enable the Administrator account and do not give standard users administrative privileges, the guests account should not be enabled too.
+
+To make administration of users easier, Windows uses groups. A group will have a name and a specific set of permissions associated with it. When a user is placed into a group, the permissions of that group are given to that user. A user can be placed into multiple groups to be provided with many different permissions. When the permissions overlap, certain permissions, like "explicitly deny" will override the permission provided by a different group. There are many different user groups built into Windows that are used for specific tasks. For example, the Performance Log Users group allows members to schedule logging of performance counters and collect logs either locally or remotely. Local users and groups are managed with the **lusrmgr.msc** control panel applet, as shown in the figure.
+
+![Desktop View](/assets/img/cyberops_associate/lusrmgr.msc.png)
+
+In addition to groups, Windows can also use domains to set permissions. A domain is a type of network service where all of the users, groups, computers, peripherals, and security settings are stored on and controlled by a database. This database is stored on special computers or groups of computers called domain controllers (DCs). Each user and computer on the domain must authenticate against the DC to logon and access network resources. The security settings for each user and each computer are set by the DC for each session. Any setting supplied by the DC defaults to the local computer or user account setting.
+
+#### 3.3.3 CLI and PowerShell
+
+These are a few things to remember when using the CLI:
+
+- The file names and paths are not case-sensitive, by default.
+- To switch between storage devices, type the letter of the device, followed by a colon, and then press **Enter**.
+
+Even though the CLI has many commands and features, it cannot work together with the core of Windows or the GUI. Another environment, called the Windows PowerShell, can be used to create scripts to automate tasks that the regular CLI is unable to create. PowerShell also provides a CLI for initiating commands. PowerShell is an integrated program within Windows.
+
+These are the types of commands that PowerShell can execute:
+- **cmdlets**: These commands perform an action and return an output or object to the next command that will be executed.
+- **PowerShell scripts**: These are files with a .ps1 extension that contain PowerShell commands that are executed.
+- **PowerShell functions**: These are pieces of code that can be referenced in a script.
+
+To see more information about Windows PowerShell and get started using it, type help in PowerShell.
+There are four levels of help in Windows PowerShell:
+- **get-help** PS command: Displays basic help for a command
+- **get-help** PS command [-examples]: Displays basic help for a command with examples
+- **get-help** PS command [-detailed]: Displays detailed help for a command with examples
+- **get-help** PS command [-full]: Displays all help information for a command with examples in greater depth
+
+#### 3.3.4 Windows Management Instrumentation
+
+Windows Management Instrumentation (WMI) is used to manage remote computers. It can retrieve information about computer components, hardware and software statistics, and monitor the health of remote computers. To open the WMI control from the Control Panel, double-click Administrative Tools > Computer Management to open the Computer Management window, expand the Services and Applications tree and right-click the WMI Control icon > Properties.
+
+![Desktop View](/assets/img/cyberops_associate/wmi.png)
+
+These are the four tabs in the WMI Control Properties window:
+
+- **General**: Summary information about the local computer and WMI
+- **Backup/Restore**: Allows manual backup of statistics gathered by WMI
+- **Security**: Settings to configure who has access to different WMI statistics
+- **Advanced**: Settings to configure the default namespace for WMI
+
+> Some attacks today use WMI to connect to remote systems, modify the registry, and run commands. WMI helps them to avoid detection because it is common traffic, most often trusted by the network security devices and the remote WMI commands do not usually leave evidence on the remote host. Because of this, WMI access should be strictly limited.
+{: .prompt-warning }
+
+#### 3.3.5 The net Command
+
+One important command is the net command, which is used in the administration and maintenance of the OS.
+
+```bash
+C:\>net help
+La sintaxis de este comando es:
+
+NET HELP
+comando
+     -o-
+NET comando /HELP
+
+  Éstos son los comandos disponibles:
+
+  NET ACCOUNTS             NET HELPMSG              NET STATISTICS
+  NET COMPUTER             NET LOCALGROUP           NET STOP
+  NET CONFIG               NET PAUSE                NET TIME
+  NET CONTINUE             NET SESSION              NET USE
+  NET FILE                 NET SHARE                NET USER
+  NET GROUP                NET START                NET VIEW
+  NET HELP
+
+  NET HELP NAMES explica los diferentes tipos de nombres usados en las
+  líneas de sintaxis de NET HELP.
+  NET HELP SERVICES muestra algunos de los servicios que se pueden iniciar.
+  NET HELP SYNTAX explica cómo leer las líneas de sintaxis de NET HELP.
+  NET HELP comando | MORE muestra la Ayuda en una pantalla a la vez.
+
+C:\>
+```
+
+| Command			| Description			|
+| :---------------------------- | :-----------------------------------: |
+| net accounts | Sets password and logon requirements for users.	|
+| net session | Lists or disconnects sessions between a computer and other computers on the network. |
+| net share | Creates, removes, or manages shared resources. |
+| net start | Starts a network service or lists running network services. |
+| net stop  | Stops a network service. |
+| net use   | Connects, disconnects, and displays information about shared network resources. |
+| net view  | Show a list of computers and network devices on the network. |
+
+#### 3.3.6 Task Manager and Resource Monitor
+
+There are two very important and useful tools to help an administrator to understand the many different applications, services, and processes that are running on a Windows computer. These tools also provide insight into the performance of the computer, such as CPU, memory, and network usage. These tools are especially useful when investigating a problem where malware is suspected. When a component is not performing the way that it should be, these tools can be used to determine what the problem might be.
+
+Task Manager
+: Provides a lot of information about the software that is running and the general performance of the computer.
+
+![Desktop View](/assets/img/cyberops_associate/task_manager.png)
+
+| Task Manager Tabs		| Description				|
+| :---------------------------- | :-----------------------------------: |
+| Processes			| - Lists all of the programms and processes thtat are currently running. |
+| 				| - Displays the CPU, memory, disk, and network utilization of each process. |
+| 				| - The propierties of a process can be examined or ended if it is not behaving properly or has stalled. |
+| Performance			| - A view of all the performance statistics provides a useful overview of the CPU, memory, disk, and network performance. |
+| 				| - Clicking each item in the left pane will show detailed statistics of that item in the right page. |
+| App History | - The use of resources by application over time provides insight into applications that are consuming more resources than they should. |
+| | - Click **Options** and **Show history for all processes** to see the history of every process that has run since the computer was started.|
+| Startup | - All of the applications and services that start when the computer is booted are shown in this tab. |
+| | - To disable a program from starting at startup, **right-click** the item and choose **Disable**. |
+| Users | - All of the users that are logged on to the computer are shown in this tab. |
+| | - Also shown are all the resources that each user’s applications and processes are using. |
+| | - From this tab, an administrator can disconnect a user from the computer. |
+| Details | - Similar to the Processes tab, this tab provides additional management options for processes such as setting a priority to make the processor devote more or less time to a process. |
+| | - CPU affinity can also be set which determines which core or CPU a program will use. |
+| | - Also, a useful feature called Analyze wait chain shows any process for which another process is waiting. |
+| | - This feature helps to determine if a process is simply waiting or is stalled. |
+| Services | - All the services that are loaded are shown in this tab. |
+| | - The process ID (PID) and a short description are also shown along with the status of either Running or Stopped. |
+| | - At the bottom, there is a button to open the Services console which provides additional management of services. |
+
+Resource Monitor
+: When more detailed information about resource usage is needed, you can use the Resource Monitor.
+
+![Desktop View](/assets/img/cyberops_associate/resource_monitor.png)
+
+When searching for the reason a computer may be acting erratically, the Resource Monitor can help to find the source of the problem.
+
+| Resource Monitor Tabs		| Description				|
+| :---------------------------- | :-----------------------------------: |
+| Overview			| - The tab displays the general usage for each resource. |
+| 				| - If you select a single process, it will be filtered across all of the tabs to show only that process’s statistics. |
+| CPU				| - The PID, number of threads, which CPU the process is using, and the average CPU usage of each process is shown. |
+| 				| - Additional information about any services that the process relies on, and the associated handles and modules can be seen by expanding the lower rows. |
+| Memory			| - All of the statistical information about how each process uses memory is shown in this tab. |
+| 				| - Also, an overview of usage of all the RAM is shown below the Processes row. |
+| Disk				| - All of the processes that are using a disk are shown in this tab, with read/write statistics and an overview of each storage device. |
+| Network			| - All of the processes that are using the network are shown in this tab, with read/write statistics. |
+| 				| - Most importantly, the current TCP connections are shown, along with all of the ports that are listening. |
+| 				| - This tab is very useful when trying to determine which applications and processes are communicating over the network. |
+| 				| - It makes it possible to tell if an unauthorized process is accessing the network, listening for a communication, and the address with which it is communicating. |
+
+#### 3.3.7 Networking
+
+One of the most important features of any operating system is the ability for the computer to connect to a network. Without this feature, there is no access to network resources or the internet. To configure Windows networking properties and test networking settings, the Network and Sharing Center is used. The easiest way to run this tool is to search for it and click it. Use the Network and Sharing Center to verify or create network connections, configure network sharing, and change network adapter settings.
+
+![Desktop View](/assets/img/cyberops_associate/network_and_sharing_center.png)
+
+nslookup and netstat
+: Domain Name System (DNS) should also be tested because it is essential to finding the address of hosts by translating it from a name, such as a URL. Use the nslookup command to test DNS. You can also check to see what ports are open, where they are connected, and what their current status is.
+
+```bash
+C:\>netstat
+
+Conexiones activas
+
+  Proto  Dirección local     Dirección remota       Estado
+  TCP    127.0.0.1:4000      XXXXXXXXXXXXXXX:52996  TIME_WAIT
+  TCP    127.0.0.1:4000      XXXXXXXXXXXXXXX:53002  TIME_WAIT
+  TCP    127.0.0.1:4000      XXXXXXXXXXXXXXX:53003  TIME_WAIT
+  TCP    127.0.0.1:4000      XXXXXXXXXXXXXXX:53004  TIME_WAIT
+  TCP    127.0.0.1:4000      XXXXXXXXXXXXXXX:53005  TIME_WAIT
+  TCP    127.0.0.1:4000      XXXXXXXXXXXXXXX:53006  TIME_WAIT
+  TCP    127.0.0.1:54245     XXXXXXXXXXXXXXX:54246  ESTABLISHED
+  TCP    127.0.0.1:54246     XXXXXXXXXXXXXXX:54245  ESTABLISHED
+  TCP    127.0.0.1:54248     XXXXXXXXXXXXXXX:54249  ESTABLISHED
+  TCP    127.0.0.1:54249     XXXXXXXXXXXXXXX:54248  ESTABLISHED
+
+C:\>
+```
+
+#### 3.3.8 Accessing Network Resources
+
+Windows use Server Message Block (SMB) protocol to share network resources. SMB is mostly used for accessing files on remote hosts. The Universal Naming Convention (UNC) format is used to connect to resources, for example:
+
+**\\****\\servername\sharename\file**
+
+In the UNC, servername is the server that is hosting the resource. This can be a DNS name, a NetBIOS name, or simply an IP address. The sharename is the root of the folder in the file system on the remote host, while the file is the resource that the local host is trying to find. The file may be deeper within the file system and this hierarchy will need to be indicated.
+
+When sharing resources on the network, the area of the file system that will be shared will need to be identified. Access control can be applied to the folders and files to restrict users and groups to specific functions such as read, write, or deny. There are also special shares that are automatically created by Windows. These shares are called administrative shares. An administrative share is identified by the dollar sign (\\$) that comes after the share name. Each disk volume has an administrative share, represented by the volume letter and the \\$ such as C\\$, D\\$, or E\\$. The Windows installation folder is shared as admin\\$, the printers' folder is shared as print\$, and there are other administrative shares that can be connected. Only users with administrative privileges can access these shares.
+
+#### 3.3.9 Windows Server
+
+Services that Windows Server provides:
+
+- **Network Services**: DNS, DHCP, Terminal services, Network Controller, and Hyper-V Network virtualization
+- **File Services**: SMB, NFS, and DFS
+- **Web Services**: FTP, HTTP, and HTTPS
+- **Management**: Group policy and Active Directory domain services control
+
+#### 3.4.1 The netstat Command
+
+When malware is present in a computer, it will often open communication ports on the host to send and receive data. The netstat command can be used to look for inbound or outbound connections that are not authorized. When used on its own, the netstat command will display all of the active TCP connections.
+
+By examining these connections, it is possible to determine which of the programs are listening for connections that are not authorized. When a program is suspected of being malware, a little research can be performed to determine its legitimacy. From there, the process can be shut down with Task Manager, and malware removal software can be used to clean the computer.
+
+To make this process easier, you can link the connections to the running processes that created them in Task Manager. To do this, open a command prompt with administrative privileges and enter the **netstat -abno** command.
+
+#### 3.4.2 Event Viewer
+
+Windows Event Viewer logs the history of application, security, and system events. These log files are a valuable troubleshooting tool because they provide information necessary to identify a problem.
+
+![Desktop View](/assets/img/cyberops_associate/event_viewer.png)
+
+It is also possible to create a custom view. This is useful when looking for certain types of events, finding events that happened during a certain time period, displaying events of a certain level, and many other criteria. There is a built-in custom view called Administrative Events that shows all critical, error, and warning events from all of the administrative logs.
+
+Security event logs are found under Windows Logs. They use event IDs to identify the type of event.
+
+#### 3.4.3 Windows Update Management
+
+To ensure the highest level of protection against attacks, always make sure Windows is up to date with the latest service packs and security patches.
+
+Patches are code updates that manufacturers provide to prevent a newly discovered virus or worm from making a successful attack. From time to time, manufacturers combine patches and upgrades into a comprehensive update application called a service pack. Many devastating virus attacks could have been much less severe if more users had downloaded and installed the latest service pack. It is highly desirable that enterprises utilize systems that automatically distribute, install, and track security updates.
+
+Windows routinely checks the Windows Update website for high-priority updates that can help protect a computer from the latest security threats. These updates include security updates, critical updates, and service packs.
+
+#### 3.4.4 Local Security Policy
+
+A security policy is a set of objectives that ensures the security of a network, the data, and the computer systems in an organization. The security policy is a constantly evolving document based on changes in technology, business, and employee requirements.
+
+In most networks that use Windows computers, Active Directory is configured with Domains on a Windows Server. Windows computers join the domain. The administrator configures a Domain Security Policy that applies to all computers that join the domain. Account policies are automatically set when a user logs in to a computer that is a member of a domain. Windows Local Security Policy, shown in the figure, can be used for stand-alone computers that are not part of an Active Directory domain.
+
+![Desktop View](/assets/img/cyberops_associate/directivas_seguridad_local.png)
+
+Password guidelines are an important component of a security policy. Any user that must log on to a computer or connect to a network resource should be required to have a password. Passwords also help to confirm that the logging of events is valid by ensuring that the user is the person that they say they are. In the Local Security Policy, Password Policy is found under Account Policies and defines the criteria for the passwords for all of the users on the local computer.
+
+Use the Account Lockout Policy in Account Policies to prevent brute-force login attempts.
+
+It is important to make sure that computers are secure when users are away. A security policy should contain a rule about requiring a computer to lock when the screensaver starts.
+
+If the Local Security Policy on every stand-alone computer is the same, then use the Export Policy feature. Save the policy with a name, such as workstation.inf. Copy the policy file to an external media or network drive to use on other stand-alone computers. This is particularly helpful if the administrator needs to configure extensive local policies for user rights and security options.
+
+The Local Security Policy applet contains many other security settings that apply specifically to the local computer. You can configure User Rights, Firewall Rules, and even the ability to restrict the files that users or groups are allowed to run with the AppLocker.
+
+#### 3.4.5 Windows Defender
+
+Malware includes viruses, worms, Trojan horses, keyloggers, spyware, and adware. These are designed to invade privacy, steal information, damage the computer, or corrupt data.
+
+The following types of antimalware programs are available:
+
+- **Antivirus protection**: This program continuously monitors for viruses. When a virus is detected, the user is warned, and the program attempts to quarantine or delete the virus.
+- **Adware protection**: This program continuously looks for programs that display advertising on your computer.
+- **Phishing protection**: This program blocks the IP addresses of known phishing websites and warns the user about suspicious sites.
+- **Spyware protection**: This program scans for keyloggers and other spyware.
+- **Trusted / untrusted sources**: This program warns you about unsafe programs about to be installed or unsafe websites before they are visited.
+
+It may take several different programs and multiple scans to completely remove all malicious software. Run only one malware protection program at a time.
+
+Windows has built-in virus and spyware protection called Windows Defender it is turned on by default to provide real-time protection against infection.
+
+Although Windows Defender works in the background, you can perform manual scans of the computer and storage devices. You can also manually update the virus and spyware definitions in the **Update** tab. Also, to see all of the items that were found during previous scans, click the **History** tab.
+
+#### 3.4.6 Windows Firewall
+
+A firewall selectively denies traffic to a computer or network segment. Firewalls generally work by opening and closing the ports used by various applications. By opening only the required ports on a firewall, you are implementing a restrictive security policy. Any packet not explicitly permitted is denied. In contrast, a permissive security policy permits access through all ports, except those explicitly denied.
+
+#### 3.4.7 Check Your Understanding - Identify the Windows Tool
+
+Which Windows tool selectively denies traffic to a computer or network segment?
+- [ ] Event Viewer
+- [ ] Resource Monitor
+- [ ] Task Manager
+- [ ] Windows Defender
+- [x] Windows Firewall
+- [ ] Windows Registy
+
+> The `Windows Firewall` selectively denies traffic to a computer or network segment.
+{: .prompt-info }
+
+Which Windows tool logs history, application, security, and system events?
+- [x] Event Viewer
+- [ ] Resource Monitor
+- [ ] Task Manager
+- [ ] Windows Defender
+- [ ] Windows Registy
+
+> The `Event Viewer` logs history, application, security, and system events.
+{: .prompt-info }
+
+Which windows tool or command can be used to look for inbound or outbound TCP connections on a Windows host that are not authorized?
+- [x] netstat
+- [ ] Network and Sharing Center
+- [ ] Regedit
+- [ ] Net
+- [ ] resource monitor
+- [ ] Nslookup
+
+> The `netstat` command displays information about all of TCP and UDP connections that are present on a host. Unauthorized connections can be identified.
+{: .prompt-info }
+
+Which Windows tool provides resource information, such as memory, CPU, disk, and network?
+- [ ] Event Viewer
+- [x] Resource Monitor
+- [ ] Task Manager
+- [ ] Windows Defender
+- [ ] Windows Firewall
+- [ ] Windows Registy
+
+> The `Resource Monitor` provides resource information, such as memory, CPU, disk, and network.
+{: .prompt-info }
+
+Which Windows tool is the built-in virus and spyware protection?
+- [ ] Event Viewer
+- [ ] Resource Monitor
+- [ ] Task Manager
+- [x] Windows Defender
+- [ ] Windows Firewall
+- [ ] Windows Registy
+
+> The `Windows Defender` is the built-in virus and spyware protection.
+{: .prompt-info }
+
+Which command or tool finds the IP address of a server from a URL?
+- [ ] Net
+- [ ] Windows Registry
+- [x] Nslookup
+- [ ] net session
+- [ ] Netstat
+
+> The `Nslookup` command will show the IP address that is associated with a URL.
+{: .prompt-info }
+
+Which Windows tool provides information about applications, processes, and services running on the computer?
+- [ ] Event Viewer
+- [ ] Resource Monitor
+- [x] Task Manager
+- [ ] Windows Defender
+- [ ] Windows Firewall
+- [ ] Windows Registy
+
+> The `Task Manager` provides information about applications, processes, and services running on the computer.
+{: .prompt-info }
+
+Which Windows tool is the database that stores all the information about hardware, applications, users, and system settings?
+- [ ] Event Viewer
+- [ ] Resource Monitor
+- [ ] Task Manager
+- [ ] Windows Defender
+- [ ] Windows Firewall
+- [x] Windows Registy
+
+> The `Windows Registy` is the database that stores all the information about hardware, applications, users, and system settings.
+{: .prompt-info }
+
+#### 3.5.1 What Did I Learn in this Module?
+
+Windows Architecture and Operations
+
+: Windows consists of a hardware abstraction layer (HAL) that is software that handles all of the communication between the hardware and the kernel. The kernel has control over the entire computer and handles input and output requests, memory, and all of the peripherals connected to the computer. Windows operates in two different modes. The first is user mode. Most Windows programs run in user mode. The second is kernel mode. It allows operating system code direct access to the computer hardware. Windows supports several different file systems, but NTFS is the most widely used. NTFS volumes include the partition boot sector, master file table, system files and the file area. When a computer boots, it first accesses system information and code that is stored in BIOS hardware. The BIOS boot code performs a system self-test called POST, locates and loads the Windows OS, and loads other associated programs to start the operating system. Windows should always be shutdown properly.
+
+: A computer works by storing instructions in RAM until the CPU processes them. Each process in a 32-bit Windows computer supports a virtual address space that enables addressing up to 4 gigabytes. Each process in a 64-bit Windows computer supports a virtual address space of up to 8 terabytes. Windows stores all of the information about hardware, applications, users, and system settings in a large database known as the registry. The registry is a hierarchical database where the highest level is known as a hive, below that there are keys, followed by subkeys. There are five registry hives that contain data regarding the configuration and operation of Windows. There are hundreds of keys and subkeys.
+
+Windows Configuration and Monitoring
+
+: For security reasons, it is not advisable to log on to Windows using the Administrator account or an account with administrative privileges. Do not give standard users administrative privileges. Do not enable the Guests account unless the computer is going to be used by many different people who do not have accounts. Use Windows groups to make administration of users easier. Local users and groups are managed with the lusrmgr.msc control panel applet.
+
+: You can use the CLI or the Windows PowerShell to execute commands. PowerShell can be used to create scripts to automate tasks that the regular CLI is unable to automate. Windows Management Instrumentation (WMI) is used to manage remote computers. The **net*+ command can be combined with switches to focus on specific output. Task Manager provides a lot of information about what is running, and the general performance of the computer. The Resource Monitor provides more detailed information about resource usage. The Network and Sharing Center is used to configure Windows networking properties and test networking settings. The Server Message Block (SMB) protocol is used to share network resources such as files on remote hosts. The Universal Naming Convention (UNC) format is used to connect to resources. Windows Server is an edition of Windows that is mainly used in data centers. It provides network, file, web, and management services to a Windows network or domain.
+
+Windows Security
+
+: Malware can open communication ports to communicate and spread. The Windows **netstat** command displays all open communication ports on a computer and can also display the software processes that are associated with the ports. This enables unknown potentially malicious software to be identified and shutdown. Windows Event Viewer provides access to numerous logged events regarding the operation of a computer. Windows logs Windows events and applications and services events. Logged event severity levels range through the information, warning, error, or critical levels. It is very import to keep Windows up to date to guard against new security threats. Software patches, updates, and service packs address security vulnerabilities as they are discovered. Windows should be configured to automatically download and install updates as they become available. Windows can be configured to only install and restart a computer at specified times of day.
+
+#### 3.5.2 Module 3: The Windows Operating System Quiz
+
+When a user makes changes to the settings of a Windows system, where are these changes stored?
+- [ ] boot.ini
+- [ ] Control Panel
+- [ ] win.ini
+- [x] Registry
+
+> The registry contains information about applications, users, hardware, network settings, and file types. The registry also contains a unique section for every user, which contains the settings configured by that particular user.
+{: .prompt-info }
+
+Which user account should be used only to perform system management and not as the account for regular use?
+- [x] administrator
+- [ ] power user
+- [ ] standard user
+- [ ] guest
+
+> The administrator account is used to manage the computer and is very powerful. Best practices recommend that it be used only when it is needed to avoid accidentally performing significant changes to the system.
+{: .prompt-info }
+
+Which command is used to manually query a DNS server to resolve a specific host name?
+- [x] nslookup
+- [ ] tracert
+- [ ] net
+- [ ] ipconfig /displaydns
+
+> The `nslookup` command was created to allow a user to manually query a DNS server to resolve a given host name. The `ipconfig /displaydns` command only displays previously resolved DNS entries. The `tracert` command was created to examine the path that packets take as they cross a network and can resolve a hostname by automatically querying a DNS server. The `net` command is used to manage network computers, servers, printers, and network drives.
+{: .prompt-info }
+
+For security reasons a network administrator needs to ensure that local computers cannot ping each other. Which settings can accomplish this task?
+- [ ] file system settings
+- [ ] smartcard settings
+- [ ] MAC address settings
+- [x] firewall settings
+
+> Smartcard and file system settings do not affect network operation. MAC address settings and filtering may be used to control device network access but cannot be used to filter different data traffic types.
+{: .prompt-info }
+
+What contains information on how hard drive partitions are organized?
+- [x] MBR
+- [ ] CPU
+- [ ] Windows Registry
+- [ ] BOOTMGR
+
+> Topic 3.2.0
+{: .prompt-info }
+
+What utility is used to show the system resources consumed by each user?
+- [ ] User Accounts
+- [ ] Device Manager
+- [ ] Event Viewer
+- [x] Task Manager
+
+> The Windows Task Manager utility includes a Users tab from which the system resources consumed by each user can be displayed.
+{: .prompt-info }
+
+What term is used to describe a logical drive that can be formatted to store data?
+- [ ] volume
+- [ ] sector
+- [ ] track
+- [ ] cluster
+- [x] partition
+
+> Hard disk drives are organized by several physical and logical structures. Partitions are logical portions of the disk that can be formatted to store data. Partitions consist of tracks, sectors, and clusters. Tracks are concentric rings on the disk surface. Tracks are divided into sectors and multiple sectors are combined logically to form clusters.
+{: .prompt-info }
+
+How much RAM is addressable by a 32-bit version of Windows?
+- [x] 4 GB
+- [ ] 8 GB
+- [ ] 16 GB
+- [ ] 32 GB
+
+> A 32-bit operating system is capable of supporting approximately 4 GB of memory. This is because 2^32 is approximately 4 GB.
+{: .prompt-info }
+
+Which Windows version was the first to introduce a 64-bit Windows operating system?
+- [ ] Windows NT
+- [x] Windows XP
+- [ ] Windows 10
+- [ ] Windows 7
+
+> There are more than 20 releases and versions of the Windows operating system. The Windows XP release introduced 64-bit processing to WIndows computing.
+{: .prompt-info }
+
+Which **net** command is used on a Windows PC to establish a connection to a shared directory on a remote server?
+- [ ] net share
+- [ ] net start
+- [ ] net session
+- [x] net use
+
+>The net command is a very important command in Windows. Some common net commands include the following:
+- **net accounts**: sets password and logon requirements for users
+- **net session**: lists or disconnects sessions between a computer and other computers on the network
+- **net share**: creates, removes, or manages shared resources
+- **net start**: starts a network service or lists running network services
+- **net stop**: stops a network service
+- **net use**: connects, disconnects, and displays information about shared network resources
+- **net view**: shows a list of computers and network devices on the network 
+{: .prompt-info }
+
+What is the purpose of the cd / command?
+- [ ] changes directory to the lower directory
+- [ ] changes directory to the highest directory
+- [ ] changes directory to the previous directory
+- [x] changes directory to the root directory
+
+> CLI commands are typed into the Command Prompt window of the Windows operating system. The cd command is used to change the directory to the Windows root directory.
+{: .prompt-info }
+
+What would be displayed if the **netstat -abno** command was entered on a Windows PC?
+- [ ] only active TCP conections in an ESTABLISHED state
+- [ ] only active UDP connections in a LISTENING state
+- [x] all active TCP and UDP connections, their current state, and threir associated process ID (PID)
+- [ ] a local routing table
+
+> With the optional switch **-abno**, the **netstat** command will display all network connections together with associated running processes. It helps a user identify possible malware connections.
+{: .prompt-info }
+
+A security incident has been filed and an employee believes that someone has been on the computer since the employee left last night. The employee states that the computer was turned off before the employee left for the evening. The computer is running slowly and applications are acting strangely. Which Microsoft Windows tool would be used by the security analyst to determine if and when someone logged on to the computer after working hours?
+
+- [ ] PowerShell
+- [ ] Task Manager
+- [ ] Performance Monitor
+- [x] Event Viewer
+
+> Event Viewer is used to investigate the history of application, security, and system events. Events show the date and time that the event occurred along with the source of the event. If a cybersecurity analyst has the address of the Windows computer targeted or the date and time that a security breach occurred, the analyst could use Event Viewer to document and prove what occurred on the computer.
+{: .prompt-info }
+
+## 4 - Linux Overview
+### 4.0 Introduction
+#### 4.0.1 Why Should I Take this Module?
+
