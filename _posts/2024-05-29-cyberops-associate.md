@@ -2058,7 +2058,7 @@ Working on a Linux Host
 
 Which type of tool is used by a Linux administrator to attack a computer or network to find vulnerabilities?
 - [ ] firewall
-- [ ] PenTesting
+- [x] PenTesting
 - [ ] malware analysis
 - [ ] intrusion detection system
 
@@ -2068,7 +2068,7 @@ Which type of tool is used by a Linux administrator to attack a computer or netw
 What is a benefit of Linux being an open source operating system?
 - [ ] Linux distributions are maintained by a single organization
 - [ ] Linux distributions must include free support without cost
-- [ ] Linux distribution source code can be modified and then recompiled
+- [x] Linux distribution source code can be modified and then recompiled
 - [ ] Linux distributions are simpler operating systems since they are not designed to be connected to a network
 
 > Linux is an open source operating system and any person can access the source code, inspect it, modify it, and recompile it. Linux distributions are maintained by a community of programmers and are designed to be connected to a network and do not have to provide free support.
@@ -2078,7 +2078,7 @@ Which method can be used to harden a device?
 - [ ] Allow USB auto-detection
 - [ ] Allow users to re-use old passwords
 - [ ] Allow default services to reamin enabled
-- [ ] Force periodic password changes
+- [x] Force periodic password changes
 
 > The basic best practices for device hardening are as follows:
 - Ensure physical security.
@@ -2097,7 +2097,7 @@ A system administrator issues the command ps on a server that is running the Lin
 - [ ] to change file permissions
 - [ ] to process a new task
 - [ ] to display the contents of the current directory
-- [ ] to list the processes currently running in the system
+- [x] to list the processes currently running in the system
 
 > The Linux **ps** command is used to list the currently running processes in the system. If needed, this command can be instructed to display running processes initiated by the current user or other users.
 {: .prompt-info }
@@ -2106,13 +2106,13 @@ Which operating system source code can be downloaded and modified by any person 
 - [ ] Windows
 - [ ] Cisco IOS
 - [ ] Mac OS X
-- [ ] Linux
+- [x] Linux
 
 > Open-source programs, like Linux, allow the source code to be distributed and changed by anyone.
 {: .prompt-info }
 
 Which file system is the primary file system used by Apple in current Macintosh computers?
-- [ ] APFS
+- [x] APFS
 - [ ] ext2
 - [ ] CDFS
 - [ ] HFS+
@@ -2130,7 +2130,7 @@ Consider the result of the ls -l command in the Linux output below. What are the
 - [ ] full access
 - [ ] read only
 - [ ] read, write, execute
-- [ ] read, write
+- [x] read, write
 
 > The file permissions are always displayed in the User, Group and Other order. In the example displayed, the file has the following permissions:
 - The dash (-) means that this is a file. For directories, the first dash would be replaced with a \"d\".
@@ -2140,7 +2140,7 @@ Consider the result of the ls -l command in the Linux output below. What are the
 {: .prompt-info }
 
 In the context of a Linux operating system, which command can be used to display the syntax and parameters for a specific command?
-- [ ] man
+- [x] man
 - [ ] contrab
 - [ ] cat
 - [ ] grep
@@ -2156,7 +2156,7 @@ What is a daemon?
 - [ ] a type of security attack
 - [ ] a record to keep track of important events
 - [ ] an application that monitors and analyzes suspicious activity
-- [ ] a background process that runs without the need for user interaction
+- [x] a background process that runs without the need for user interaction
 
 > A daemon in Linux is a background process that runs without the need for user interaction. A network administrator can view log files in order to see information about daemons running on the Linux server.
 {: .prompt-info }
@@ -2164,14 +2164,14 @@ What is a daemon?
 Which Linux command can be used to display the name of the current working directory?
 - [ ] ps
 - [ ] sudo
-- [ ] pwd
+- [x] pwd
 - [ ] chmod
 
 > One of the most important commands in Linux is the **pwd** command, which stands for print working directory. It shows users the physical path for the directory they are working in.
 {: .prompt-info }
 
 An author is uploading one chapter document from a personal computer to a file server of a book publisher. What role is the personal computer assuming in this network model?
-- [ ] client
+- [x] client
 - [ ] secondary
 - [ ] transient
 - [ ] primary
@@ -2183,7 +2183,7 @@ An author is uploading one chapter document from a personal computer to a file s
 A technician has captured packets on a network that has been running slowly when accessing the internet. Which port number should the technician look for within the captured material to locate HTTP packets? 
 - [ ] 53
 - [ ] 20
-- [ ] 80
+- [x] 80
 - [ ] 110
 - [ ] 21
 
@@ -2194,13 +2194,13 @@ A system administrator issues the **apt-get upgrade** command on a Linux operati
 - [ ] Operating system updates are downloaded and will be installed.
 - [ ] The remote repository of applications and dependencies will be updated to the latest version.
 - [ ] A specific application named upgrade will be installed.
-- [ ] Every application installed will update itself to the latest version.
+- [x] Every application installed will update itself to the latest version.
 
 > When the **apt-get upgrade** command is issued in a Linux terminal, all installed applications will attempt to upgrade to the latest version available.
 {: .prompt-info }
 
 Why would a rootkit be used by a hacker?
-- [ ] to gain access to a device without being detected
+- [x] to gain access to a device without being detected
 - [ ] to reverse engineer binary files
 - [ ] to try to guess a password
 - [ ] to do reconnaissance
