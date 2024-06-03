@@ -2031,7 +2031,8 @@ Play the video to view a demonstration of installing and updating applications, 
 
 <video src="/assets/img/cyberops_associate/CyberOps_Associate_Trabajando_en_un_Host_de_Linux.mp4" width="601" controls></video>
 
-### 4.8.1 What Did I Learn in this Module?
+### 4.8 Linux Basics Summary
+#### 4.8.1 What Did I Learn in this Module?
 
 Linux Basics
 : Linux is a fast, reliable, and small open-source operating system. It requires few hardware resources to run and is highly customizable. It is designed to be used on networks. The Linux kernel is distributed by different organizations with different tools and software packages. A customized version of Linux that is called Security Onion contains software and tools that are designed for use in network security monitoring by cybersecurity analysts. Kali Linux is another customized Linux distribution that has numerous tools that are designed for network security penetration testing.
@@ -2207,3 +2208,8 @@ Why would a rootkit be used by a hacker?
 
 > Hackers use rootkits to avoid detection as well as hide any software installed by the hacker.
 {: .prompt-info }
+
+## 5 - Network Protocols
+### 5.0 Introduction
+#### 5.0.1 Why Should I Take this Module?
+
