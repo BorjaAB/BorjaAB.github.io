@@ -2502,7 +2502,7 @@ The challenge to using segmentation and multiplexing to transmit messages across
 
 In network communications, each segment of the message must go through a similar process to ensure that it gets to the correct destination and can be reassembled into the content of the original message, as shown in the figure. TCP is responsible for sequencing the individual segments.
 
-![Desktop view](/assets/img/cyberops_associate/Sequencing.png)
+![Desktop view](/assets/img/cyberops_associate/sequencing.png)
 
 
 #### 5.3.3 Protocol Data Units
