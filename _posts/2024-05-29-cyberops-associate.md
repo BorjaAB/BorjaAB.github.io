@@ -3640,3 +3640,1336 @@ Which three IP addresses are private ? (Choose three.)
 - 172.16.0.0 - 172.31.255.255
 - 192.168.0.0 - 192.168.255.255
 {: .prompt-info }
+
+## 7 - Connectivity Verification
+### 7.0 Introduction
+#### 7.0.2 What Will I Learn in this Module?
+
+ICMP
+: Explain how ICMP is used to test network connectivity.
+
+Ping and Traceroute Utilities
+: Use Windows tools, ping, and traceroute to verify network connectivity.
+
+### 7.1 ICMP
+#### 7.1.1 ICMPv4 Messages
+
+Although IP is only a best-effort protocol, the TCP/IP suite does provide for messages to be sent in the event of certain errors. These messages are sent using the services of ICMP. The purpose of these messages is to provide feedback about issues related to the processing of IP packets under certain conditions, not to make IP reliable. ICMP messages are not required and are often not allowed within a network for security reasons.
+
+ICMP is available for both IPv4 and IPv6. ICMPv4 is the messaging protocol for IPv4. ICMPv6 provides these same services for IPv6 but includes additional functionality.
+
+The types of ICMP messages and the reasons why they are sent, are extensive.
+
+ICMP messages common to both ICMPv4 and ICMPv6 include:
+
+- Host confirmation
+- Destination or Service Unreachable  
+- Time exceeded
+- Route redirection
+
+Host Confirmation
+
+: An ICMP Echo Message can be used to determine if a host is operational. The local host sends an ICMP Echo Request to a host. If the host is available, the destination host responds with an Echo Reply. This use of the ICMP Echo messages is the basis of the ping utility.
+
+![Desktop view](/assets/img/cyberops_associate/host_confirmation.gif)
+
+Destination or Service Unreachable
+
+: When a host or gateway receives a packet that it cannot deliver, it can use an ICMP Destination Unreachable message to notify the source that the destination or service is unreachable. The message will include a code that indicates why the packet could not be delivered.
+
+These are some of the Destination Unreachable codes for ICMPv4:
+
+- 0 - Net unreachable
+- 1 - Host unreachable
+- 2 - Protocol unreachable
+- 3 - Port unreachable
+
+> **Note**: ICMPv6 has similar but slightly different codes for Destination Unreachable messages.
+
+Time Exceeded
+
+: An ICMPv4 Time Exceeded message is used by a router to indicate that a packet cannot be forwarded because the Time to Live (TTL) field of the packet was decremented to 0. If a router receives a packet and decrements the TTL field in the IPv4 packet to zero, it discards the packet and sends a Time Exceeded message to the source host.
+
+: ICMPv6 also sends a Time Exceeded message if the router cannot forward an IPv6 packet because the packet has expired. IPv6 does not have a TTL field. It uses the hop limit field to determine if the packet has expired.
+
+#### 7.1.2 ICMPv6 RS and RA Messages
+
+The informational and error messages found in ICMPv6 are very similar to the control and error messages implemented by ICMPv4. However, ICMPv6 has new features and improved functionality not found in ICMPv4. ICMPv6 messages are encapsulated in IPv6.
+
+Messaging between an IPv6 router and an IPv6 device:
+
+- Router Solicitation (RS) message
+- Router Advertisement (RA) message
+
+Messaging between IPv6 devices:
+
+- Neighbor Solicitation (NS) message
+- Neighbor Advertisement (NA) message
+
+##### Router Solicitation
+
+1. RA messages are sent by routers to provide addressing information to hosts using Stateless Address Autoconfiguration (SLAAC). The RA message can include addressing information for the host such as the prefix, prefix length, DNS address, and domain name. A router will send an RA message periodically or in response to an RS message. A host using SLAAC will set its default gateway to the link-local address of the router that sent the RA.
+
+2. When a host is configured to obtain its addressing information automatically using SLAAC, the host will send an RS message to the router requesting an RA message.
+
+![Desktop view](/assets/img/cyberops_associate/router_solicitation.png)
+_Messaging Between an IPv6 Router and an IPv6 Device_
+
+##### Address Resolution
+
+1. NS messages are sent when a device knows the IPv6 address of a device but does not know its MAC address. This is equivalent to an ARP Request for IPv4.
+2. NA messages are sent in response to an NS message and match the target IPv6 address in the NS. The NA message includes the device’s Ethernet MAC address. This is equivalent to an ARP Reply in IPv4.
+
+![Desktop view](/assets/img/cyberops_associate/address_resolution.png)
+_Messaging Between IPv6 Devices_
+
+##### Duplicate Address Detection
+
+When a device is assigned a global unicast or link-local unicast address, it is recommended that DAD is performed on the address to ensure that it is unique. To check the uniqueness of an address, the device will send an NS message with its own IPv6 address as the targeted IPv6 address, shown in the figure. If another device on the network has this address, it will respond with an NA message. This NA message will notify the sending device that the address is in use. If a corresponding NA message is not returned within a certain period of time, the unicast address is unique and acceptable for use.
+
+> **Note**: DAD is not required, but RFC 4861 recommends that DAD is performed on unicast addresses.
+
+![Desktop view](/assets/img/cyberops_associate/duplicate_address_detection.png)
+_Duplicate Address Detection (DAD)_
+
+### 7.2 Ping and Traceroute Utilities
+#### 7.2.1 Video - Network Testing and Verification with Windows CLI Commands
+
+<video src="/assets/img/cyberops_associate/cyberOps_associate_ping_and_traceroute_utilities.mp4" width="601" controls></video>
+
+#### 7.2.2 Ping - Test Connectivity
+
+Ping is an IPv4 and IPv6 testing utility that uses ICMP echo request and echo reply messages to test connectivity between hosts.
+
+To test connectivity to another host on a network, an echo request is sent to the host address using the ping command. If the host at the specified address receives the echo request, it responds with an echo reply. As each echo reply is received, ping provides feedback on the time between when the request was sent and when the reply was received. This can be a measure of network performance.
+
+Ping has a timeout value for the reply. If a reply is not received within the timeout, ping provides a message indicating that a response was not received. This may indicate that there is a problem, but could also indicate that security features blocking ping messages have been enabled on the network. It is common for the first ping to timeout if address resolution (ARP or ND) needs to be performed before sending the ICMP Echo Request.
+
+After all the requests are sent, the **ping** utility provides a summary that includes the success rate and average round-trip time to the destination.
+
+Type of connectivity tests performed with **ping** include the following:
+
+- Pinging the local loopback
+- Pinging the default gateway
+- Pinging the remote host
+
+#### 7.2.3 Ping the Loopback
+
+Ping can be used to test the internal configuration of IPv4 or IPv6 on the local host. To perform this test, **ping** the local loopback address of 127.0.0.1 for IPv4 (::1 for IPv6).
+
+A response from 127.0.0.1 for IPv4, or ::1 for IPv6, indicates that IP is properly installed on the host. This response comes from the network layer. This response is not, however, an indication that the addresses, masks, or gateways are properly configured. Nor does it indicate anything about the status of the lower layer of the network stack. This simply tests IP down through the network layer of IP. An error message indicates that TCP/IP is not operational on the host.
+
+- Pinging the local host confirms that TCP/IP is installed and working on the local host.
+
+- Pinging 127.0.0.1 causes a device to ping itself.
+
+#### 7.2.4 Ping the Default Gateway
+
+You can also use **ping** to test the ability of a host to communicate on the local network. This is generally done by pinging the IP address of the default gateway of the host. A successful ping to the default gateway indicates that the host and the router interface serving as the default gateway are both operational on the local network.
+
+For this test, the default gateway address is most often used because the router is normally always operational. If the default gateway address does not respond, a ping can be sent to the IP address of another host on the local network that is known to be operational.
+
+If either the default gateway or another host responds, then the local host can successfully communicate over the local network. If the default gateway does not respond but another host does, this could indicate a problem with the router interface serving as the default gateway.
+
+One possibility is that the wrong default gateway address has been configured on the host. Another possibility is that the router interface may be fully operational but have security applied to it that prevents it from processing or responding to ping requests.
+
+![Desktop view](/assets/img/cyberops_associate/ping_default_gateway.png)
+
+The host pings its default gateway, sending an ICMP echo request. The default gateway sends an echo reply confirming connectivity.
+
+#### 7.2.5 Ping a Remote Host
+
+Ping can also be used to test the ability of a local host to communicate across an internetwork. The local host can ping an operational IPv4 host of a remote network, as shown in the figure. The router uses its IP routing table to forward the packets.
+
+If this ping is successful, the operation of a large piece of the internetwork can be verified. A successful ping across the internetwork confirms communication on the local network, the operation of the router serving as the default gateway, and the operation of all other routers that might be in the path between the local network and the network of the remote host.
+
+Additionally, the functionality of the remote host can be verified. If the remote host could not communicate outside of its local network, it would not have responded.
+
+Note: Many network administrators limit or prohibit the entry of ICMP messages into the corporate network; therefore, the lack of a ping response could be due to security restrictions.
+
+![Desktop view](/assets/img/cyberops_associate/ping_remote_host.gif)
+
+#### 7.2.6 Traceroute - Test the Path
+
+Ping is used to test connectivity between two hosts but does not provide information about the details of devices between the hosts. Traceroute (**tracert**) is a utility that generates a list of hops that were successfully reached along the path. This list can provide important verification and troubleshooting information. If the data reaches the destination, then the trace lists the interface of every router in the path between the hosts. If the data fails at some hop along the way, the address of the last router that responded to the trace can provide an indication of where the problem or security restrictions are found.
+
+Round Trip Time (RTT)
+
+: Using traceroute provides round-trip time for each hop along the path and indicates if a hop fails to respond. The round-trip time is the time a packet takes to reach the remote host and for the response from the host to return. An asterisk (*) is used to indicate a lost or unreplied packet.
+
+: This information can be used to locate a problematic router in the path or may indicate that the router is configured not to reply. If the display shows high response times or data losses from a particular hop, this is an indication that the resources of the router or its connections may be overused.
+
+IPv4 TTL and IPv6 Hop Limit
+
+Traceroute makes use of a function of the TTL field in IPv4 and the Hop Limit field in IPv6 in the Layer 3 headers, along with the ICMP Time Exceeded message.
+
+Whatch the animation to see how traceroute takes advantage of TTL.
+
+![Desktop view](/assets/img/cyberops_associate/traceroute.gif)
+
+The first sequence of messages sent from traceroute will have a TTL field value of 1. This causes the TTL to time out the IPv4 packet at the first router. This router then responds with an ICMPv4 Time Exceeded message. Traceroute now has the address of the first hop.
+
+Traceroute then progressively increments the TTL field (2, 3, 4...) for each sequence of messages. This provides the trace with the address of each hop as the packets time out further down the path. The TTL field continues to be increased until the destination is reached, or it is incremented to a predefined maximum.
+
+After the final destination is reached, the host responds with either an ICMP Port Unreachable message or an ICMP Echo Reply message instead of the ICMP Time Exceeded message.
+
+#### 7.2.7 ICMP Packet Format
+
+ICMP is encapsulated directly into IP packets. In this sense, it is almost like a transport layer protocol, because it is encapsulated into a packet, however it is considered to be a Layer 3 protocol. ICMP acts as a data payload within the IP packet. It has a special header data field, as shown in the figure.
+
+ICMP uses message codes to differentiate between different types of ICMP messages. These are some common message codes:
+
+- 0 – Echo reply (response to a ping)
+- 3 – Destination Unreachable
+- 5 – Redirect (use another route to your destination)
+- 8 – Echo request (for ping)
+- 11 – Time Exceeded (TTL became 0)
+
+As you will see later in the course, a cybersecurity analyst knows that the optional ICMP payload field can be used in an attack vector to exfiltrate data.
+
+![Desktop view](/assets/img/cyberops_associate/ip_datagram.png)
+_IP Datagram_
+
+#### 7.2.8 Packet Tracer – Verify IPv4 and IPv6 Addressing
+
+[In this Packet Tracer activity](/assets/img/cyberops_associate/7.2.8_packet_tracer_verify_ipv4_and_ipv6_addressing.pdf), you will verify IPv4 and IPv6 addressing configuration and test connectivity with Ping and Tracert.
+
+[Verify IPv4 and IPv6 Addressing](/assets/img/cyberops_associate/7.2.8_packet_tracer_verify_ipv4_and_ipv6_addressing.pka)
+
+### 7.3 Connectivity Verification Summary
+
+#### 7.3.1 What Did I Learn in this Module?
+
+ICMP
+
+: The TCP/IP suite sends ICMP messages when IP packets encounter forwarding problems. However, ICMP messages are not required and are often not allowed within a network for security reasons. ICMPv4 is the messaging protocol for IPv4, while ICMPv6 provides these same services for IPv6 and includes additional functionality. ICMP messages that are common to both ICMPv4 and ICMPv6 include host confirmation, destination or service unreachable, time exceeded, and route redirection. ICMPv6 includes the additional four ICMPv6 messages for the Neighbor Discovery Protocol (NDP). These messages are router solicitation (RS) and router advertisements (RA) messages that are sent between IPv6 routers and IPv6 hosts, and neighbor solicitation (NS) and neighbor advertisement (NA) messages that are sent between IPv6 devices.
+
+Ping and Traceroute Utilities
+
+: Ping is an IPv4 and IPv6 testing utility that uses ICMP echo request and echo reply messages to test connectivity between hosts. Some of the types of connectivity tests that are performed with ping include pinging the local loopback, pinging the default gateway, and pinging a remote host. Traceroute (tracert) is a utility that generates a list of the router hops that were successfully reached along a path. This provides important verification and troubleshooting information. Traceroute makes use of a function of the TTL field in IPv4 and the Hop Limit field in the IPv6 Layer 3 headers, along with the ICMP Time Exceeded message. ICMP is encapsulated directly into IP packets as the data payload. The ICMP data payload contains special header data fields.
+
+#### 7.3.2 Module 7: Connectivity Verification Quiz
+
+What is indicated by a successful ping to the ::1 IPv6 address?
+- [ ] The link-local address is correctly configured.
+- [ ] All hosts on the local link are available.
+- [ ] The host is cabled properly.
+- [x] IP is properly installed on the host.
+- [ ] The default gateway address is correctly configured.
+
+> The IPv6 address ::1 is the loopback address. A successful ping to this address means that the TCP/IP stack is correctly installed. It does not mean that any addresses are correctly configured.
+{: .prompt-info }
+
+A user complains that the workstation cannot access the network. The network technician asks the user to issue the **ping 127.0.0.1** command. What is the purpose of using this command?
+- [ ] to test the reachability of a remote network
+- [x] to verify that the TCP/IP stack is operational
+- [ ] to check that the workstation can reach a DHCP server
+- [ ] to verify that the NIC is configured with a static address
+
+> The **ping 127.0.0.1** command is used to verify the proper operation of the TCP/IP protocol stack from the network layer to the physical layer - and back. This operation of this command does not  actually put a signal on the network media.
+{: .prompt-info }
+
+What process is used in ICMPv6 for a host to verify that an IPv6 address is unique before configuring it on an interface?
+- [x] DAD
+- [ ] SLAAC
+- [ ] ARP
+- [ ] EUI-64
+
+> Before an IPv6 host can enable and use an assigned IPv6 address, the host must verify that the address is unique on the network. To verify that no other hosts are using the IPv6 address, the host performs the duplicate address detection (DAD) process by sending a Neighbor Solicitation (NS) message to the IPv6 address.
+{: .prompt-info }
+
+A network administrator can successfully ping the server at www.cisco.com, but cannot ping the company web server located at an ISP in another city. Which tool or command would help identify the specific router where the packet was lost or delayed?
+- [ ] netstat
+- [x] traceroute
+- [ ] ipconfig
+- [ ] telnet
+
+> The traceroute command provides connectivity information about the path a packet takes to reach the destination and about every router (hop) along the way. It also indicates how long a packet takes to get from the source to each hop and back.
+{: .prompt-info }
+
+A user executes a traceroute over IPv6. At what point would a router in the path to the destination device drop the packet?
+- [ ] when the value of the Hop Limit field reaches 255
+- [ ] when the target host responds with an ICMP echo reply message
+- [x] when the value of the Hop Limit field reaches zero
+- [ ] when the router receives an ICMP time exceeded message
+
+> When a traceroute is performed, the value in the Hop Limit field of an IPv6 packet determines how many router hops the packet can travel. Once the Hop Limit field reaches a value of zero, it can no longer be forwarded and the receiving router will drop the packet.
+{: .prompt-info }
+
+Which ICMPv6 message is sent when the IPv6 hop limit field of a packet is decremented to zero and the packet cannot be forwarded?
+- [ ] network unreachable
+- [ ] protocol unreachable
+- [ ] port unreachable
+- [x] time exceeded
+
+> ICMPv6 uses the hop limit field in the IPv6 packet header to determine if the packet has expired. If the hop limit field has reached zero, a router will send a time exceeded message back towards the source indicating that the router cannot forward the packet.
+{: .prompt-info }
+
+What message is sent by a host to check the uniqueness of an IPv6 address before using that address?
+- [x] neighbor solicitation
+- [ ] ARP request
+- [ ] router solicitation
+- [ ] echo request
+
+> In IPv6, Duplicate Address Detection (DAD) is used in place of ARP. An IPv6 host performs DAD by sending a neighbor solicitation (NS) message to its own IPv6 address to ensure the uniqueness of the address prior to using it.
+{: .prompt-info }
+
+Which protocol is used by **ping** to test connectivity between network hosts?
+- [ ] DHCP
+- [ ] TCP
+- [x] ICMP
+- [ ] ARP
+
+> The Internet Control Message Protocol (ICMP) is used by **ping** to test connectivity between network hosts. The Address Resolution Protocol (ARP) is used to map IP addresses to MAC addresses. The Dynamic Host Configuration Protocol (DHCP) is used to dynamically assign IP addresses to network hosts. The Transmission Control Protocol (TCP) is considered a reliable protocol that segments the application layer data into segments for transmission.
+{: .prompt-info }
+
+A user issues a **ping 2001:db8:3040:114::88** command and receives a response that includes a code of 3. What does this code represent?
+- [ ] network  unreachable
+- [ ] host unreachable
+- [x] port unreachable
+- [ ] protocol unreachable
+
+> When a host or gateway receives a packet that it cannot deliver, it can use an ICMP Destination Unreachable message to notify the source that the destination or service is unreachable. The message will include a code that indicates why the packet could not be delivered. These are some of the Destination Unreachable codes for ICMPv4:
+- 0 : net unreachable
+- 1 : host unreachable
+- 2 : protocol unreachable
+- 3 : port unreachable 
+{: .prompt-info }
+
+A user issues a **ping 192.51.100.5** command and receives a response that includes a code of 3. What does this code represent?
+- [ ] host unreachable
+- [ ] protocol unreachable
+- [ ] network  unreachable
+- [x] port unreachable
+
+> When a host or gateway receives a packet that it cannot deliver, it can use an ICMP Destination Unreachable message to notify the source that the destination or service is unreachable. The message will include a code that indicates why the packet could not be delivered. These are some of the Destination Unreachable codes for ICMPv4:
+- 0 : net unreachable
+- 1 : host unreachable
+- 2 : protocol unreachable
+- 3 : port unreachable 
+{: .prompt-info }
+
+What characterizes a traceroute utility?
+- [ ] It is primarily used to test connectivity between two hosts.
+- [x] It identifies the routers in the path from a source host to a destination host.
+- [ ] It utilizes the ICMP Route Redirection messages.
+- [ ] It sends four Echo Request messages.
+
+> Traceroute is a utility that generates a list of hops (or routers) along the path from a source host to the destination host.
+{: .prompt-info }
+
+Why would a manager need to use the **tracert** command?
+- [x] to display a list of the near-side router interfaces between the source device and the destination device
+- [ ] to display a list of current processes running on a local or a remote computer
+- [ ] to quickly verify connectivity by sending echo-request messages to the destination and receiving a series of echo-reply messages from that destination
+- [ ] to query the Domain Name System (DNS) to get domain names and mapping information
+
+> Tracert is a utility that generates a list of hops that were successfully reached along the path. This list can provide important verification and troubleshooting information. If the data reaches the destination, then the trace lists the interface of every router in the path between the hosts. If the data fails at some hop along the way, the address of the last router that responded to the trace can provide an indication of where the problem or security restrictions are found.
+{: .prompt-info }
+
+Which protocol supports Stateless Address Autoconfiguration (SLAAC) for dynamic assignment of IPv6 addresses to a host?
+- [ ] DHCPv6
+- [ ] UDP
+- [x] ICMPv6
+- [ ] ARPv6
+
+> SLAAC uses ICMPv6 messages when dynamically assigning an IPv6 address to a host. DHCPv6 is an alternate method of assigning an IPv6 addresses to a host. ARPv6 does not exist. Neighbor Discovery Protocol (NDP) provides the functionality of ARP for IPv6 networks. UDP is the transport layer protocol used by DHCPv6.
+{: .prompt-info }
+
+## 8 - Address Resolution Protocol
+### 8.0 Introduction
+#### 8.0.2 What Will I Learn in this Module?
+
+MAC and IP
+: Compare the roles of the MAC address and the IP address.
+
+ARP
+: Analyze ARP by examining Ethernet frames.
+
+ARP Issues
+: Explain how ARP requests impact network and host performance as well as potential security risks.
+
+### 8.1 MAC and IP
+#### 8.1.1 Destination on Same Network
+
+There are two primary addresses assigned to a device on an Ethernet LAN:
+
+- **Physical address (the MAC address)**: This is used for Ethernet NIC to Ethernet NIC communications on the same network.
+- **Logical address (the IP address)**: This is used to send the packet from the original source to the final destination.
+
+IP addresses are used to identify the address of the original source device and the final destination device. The destination IP address may be on the same IP network as the source or may be on a remote network.
+
+Ethernet MAC addresses, have a different purpose. These addresses are used to deliver the data link frame with the encapsulated IP packet from one NIC to another NIC on the same network. If the destination IP address is on the same network, the destination MAC address will be that of the destination device.
+
+The Layer 2 Ethernet frame contains:
+
+- **Destination MAC address**: This is the MAC address of the file server’s Ethernet NIC.
+- **Source MAC address**: This is the MAC address of PC-A’s Ethernet NIC.
+
+The Layer 3 IP packet contains:
+
+- **Source IP address**: This is the IP address of the original source, PC-A.
+- **Destination IP address**: This is the IP address of the final destination, the file server.
+
+![Desktop view](/assets/img/cyberops_associate/communicating_on_a_local_network.png)
+_Communicating on a Local Network_
+
+> The figure shows the Ethernet MAC addresses and IP address for PC-A sending an IP packet to the file server on the same network.
+
+#### 8.1.2 Destination on Remote Network
+
+When the destination IP address is on a remote network, the destination MAC address will be the address of the host’s default gateway. The default gateway address is the address of the router’s NIC, as shown in the figure. Using a postal analogy, this would be similar to a person taking a letter to their local post office. They only need to leave the letter at the post office. It then becomes the responsibility of the post office to forward the letter on towards its final destination.
+
+The figure shows the Ethernet MAC addresses and IPv4 addresses for PC-A. It is sending an IP packet to a file server on a remote network. Routers examine the destination IPv4 address to determine the best path to forward the IPv4 packet. This is similar to how the postal service forwards mail based on the address of the recipient.
+
+When the router receives the Ethernet frame, it de-encapsulates the Layer 2 information. Using the destination IP address, it determines the next-hop device, and then encapsulates the IP packet in a new data link frame for the outgoing interface. Along each link in a path, an IP packet is encapsulated in a frame specific to the particular data link technology associated with that link, such as Ethernet. If the next-hop device is the final destination, the destination MAC address will be that of the device’s Ethernet NIC.
+
+How are the IPv4 addresses of the IPv4 packets in a data flow associated with the MAC addresses on each link along the path to the destination? This is done through a process called Address Resolution Protocol (ARP).
+
+![Desktop view](/assets/img/cyberops_associate/communicating_to_a_remote_network.png)
+_Communicating to a Remote Network_
+
+### 8.2 ARP
+#### 8.2.1 ARP Overview
+
+If your network is using the IPv4 communications protocol, the Address Resolution Protocol, or ARP, is what you need to map IPv4 addresses to MAC addresses. This topic explains how ARP works.
+
+Every IP device on an Ethernet network has a unique Ethernet MAC address. When a device sends an Ethernet Layer 2 frame, it contains these two addresses:
+
+- **Destination MAC address**: The Ethernet MAC address of the destination device on the same local network segment. If the destination host is on another network, then the destination address in the frame would be that of the default gateway (i.e., router).
+- **Source MAC address**: The MAC address of the Ethernet NIC on the source host.
+
+The figure illustrates the problem when sending a frame to another host on the same segment on an IPv4 network.
+
+![Desktop view](/assets/img/cyberops_associate/arp_ipv4_problem.png)
+
+To send a packet to another host on the same local IPv4 network, a host must know the IPv4 address and the MAC address of the destination device. Device destination IPv4 addresses are either known or resolved by device name. However, MAC addresses must be discovered.
+
+A device uses Address Resolution Protocol (ARP) to determine the destination MAC address of a local device when it knows its IPv4 address.
+
+ARP provides two basic functions:
+
+- Resolving IPv4 addresses to MAC addresses
+- Maintaining a table of IPv4 to MAC address mappings
+
+#### 8.2.2 ARP Functions 
+
+When a packet is sent to the data link layer to be encapsulated into an Ethernet frame, the device refers to a table in its memory to find the MAC address that is mapped to the IPv4 address. This table is stored temporarily in RAM memory and called the ARP table or the ARP cache.
+
+The sending device will search its ARP table for a destination IPv4 address and a corresponding MAC address.
+
+- If the packet’s destination IPv4 address is on the same network as the source IPv4 address, the device will search the ARP table for the destination IPv4 address.
+- If the destination IPv4 address is on a different network than the source IPv4 address, the device will search the ARP table for the IPv4 address of the default gateway.
+
+In both cases, the search is for an IPv4 address and a corresponding MAC address for the device.
+
+Each entry, or row, of the ARP table binds an IPv4 address with a MAC address. We call the relationship between the two values a map. This simply means that you can locate an IPv4 address in the table and discover the corresponding MAC address. The ARP table temporarily saves (caches) the mapping for the devices on the LAN.
+
+If the device locates the IPv4 address, its corresponding MAC address is used as the destination MAC address in the frame. If there is no entry is found, then the device sends an ARP request.
+
+![Desktop view](/assets/img/cyberops_associate/arp_functions.gif)
+_Its show how ARP Request works_
+
+#### 8.2.3 Video - ARP Operation - ARP Request
+
+An ARP request is sent when a device needs to determine the MAC address that is associated with an IPv4 address, and it does not have an entry for the IPv4 address in its ARP table.
+
+ARP messages are encapsulated directly within an Ethernet frame. There is no IPv4 header. The ARP request is encapsulated in an Ethernet frame using the following header information:
+
+- **Destination MAC address**: This is a broadcast address FF-FF-FF-FF-FF-FF requiring all Ethernet NICs on the LAN to accept and process the ARP request.
+- **Source MAC address**: This is MAC address of the sender of the ARP request.
+- **Type**: ARP messages have a type field of 0x806. This informs the receiving NIC that the data portion of the frame needs to be passed to the ARP process.
+
+Because ARP requests are broadcasts, they are flooded out all ports by the switch, except the receiving port. All Ethernet NICs on the LAN process broadcasts and must deliver the ARP request to its operating system for processing. Every device must process the ARP request to see if the target IPv4 address matches its own. A router will not forward broadcasts out other interfaces.
+
+Only one device on the LAN will have an IPv4 address that matches the target IPv4 address in the ARP request. All other devices will not reply.
+
+<video src="/assets/img/cyberops_associate/cyberops_associate_arp_request.mp4" width="601" controls></video>
+
+#### 8.2.4 Video - ARP Operation - ARP Reply
+
+Only the device with the target IPv4 address associated with the ARP request will respond with an ARP reply. The ARP reply is encapsulated in an Ethernet frame using the following header information:
+
+- **Destination MAC address**: This is the MAC address of the sender of the ARP request.
+- **Source MAC address**: This is the MAC address of the sender of the ARP reply.
+- **Type**: ARP messages have a type field of 0x806. This informs the receiving NIC that the data portion of the frame needs to be passed to the ARP process.
+
+Only the device that originally sent the ARP request will receive the unicast ARP reply. After the ARP reply is received, the device will add the IPv4 address and the corresponding MAC address to its ARP table. Packets destined for that IPv4 address can now be encapsulated in frames using its corresponding MAC address.
+
+If no device responds to the ARP request, the packet is dropped because a frame cannot be created.
+
+Entries in the ARP table are time stamped. If a device does not receive a frame from a particular device before the timestamp expires, the entry for this device is removed from the ARP table.
+
+Additionally, static map entries can be entered in an ARP table, but this is rarely done. Static ARP table entries do not expire over time and must be manually removed.
+
+> **Note**: IPv6 uses a similar process to ARP for IPv4, known as ICMPv6 Neighbor Discovery (ND). IPv6 uses neighbor solicitation and neighbor advertisement messages, similar to IPv4 ARP requests and ARP replies.
+
+<video src="/assets/img/cyberops_associate/cyberops_associate_arp_reply.mp4" width="601" controls></video>
+
+#### 8.2.5 Video - ARP Role in Remote Communication
+
+When the destination IPv4 address is not on the same network as the source IPv4 address, the source device needs to send the frame to its default gateway. This is the interface of the local router. Whenever a source device has a packet with an IPv4 address on another network, it will encapsulate that packet in a frame using the destination MAC address of the router.
+
+The IPv4 address of the default gateway is stored in the IPv4 configuration of the hosts. When a host creates a packet for a destination, it compares the destination IPv4 address and its own IPv4 address to determine if the two IPv4 addresses are located on the same Layer 3 network. If the destination host is not on its same network, the source checks its ARP table for an entry with the IPv4 address of the default gateway. If there is not an entry, it uses the ARP process to determine a MAC address of the default gateway.
+
+<video src="/assets/img/cyberops_associate/cyberops_associate_arp_role_in_remote_communication.mp4" width="601" controls></video>
+
+#### 8.2.6 Removing Entries from an ARP Table
+
+For each device, an ARP cache timer removes ARP entries that have not been used for a specified period of time. The times differ depending on the operating system of the device. For example, newer Windows operating systems store ARP table entries between 15 and 45 seconds, as illustrated in the figure.
+
+![Desktop view](/assets/img/cyberops_associate/removing_entries_from_an_arp_table.jpg)
+
+Commands may also be used to manually remove some or all of the entries in the ARP table. After an entry has been removed, the process for sending an ARP request and receiving an ARP reply must occur again to enter the map in the ARP table.
+
+#### 8.2.7 ARP Tables on Networking Devices
+
+On a Cisco router, the `show ip arp` command is used to display the ARP table, as shown in the figure.
+
+```bash
+R1# show ip arp 
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.10.1            -   a0e0.af0d.e140  ARPA   GigabitEthernet0/0/0
+Internet  209.165.200.225         -   a0e0.af0d.e141  ARPA   GigabitEthernet0/0/1
+Internet  209.165.200.226         1   a03d.6fe1.9d91  ARPA   GigabitEthernet0/0/1
+R1#
+```
+
+On a Windows 10 PC, the `arp –a` command is used to display the ARP table, as shown in the figure.
+
+```bash
+C:\Users\PC> arp -a
+Interface: 192.168.1.124 --- 0x10
+  Internet Address      Physical Address      Type
+  192.168.1.1           c8-d7-19-cc-a0-86     dynamic
+  192.168.1.101         08-3e-0c-f5-f7-77     dynamic
+  192.168.1.110         08-3e-0c-f5-f7-56     dynamic
+  192.168.1.112         ac-b3-13-4a-bd-d0     dynamic
+  192.168.1.117         08-3e-0c-f5-f7-5c     dynamic
+  192.168.1.126         24-77-03-45-5d-c4     dynamic
+  192.168.1.146         94-57-a5-0c-5b-02     dynamic
+  192.168.1.255         ff-ff-ff-ff-ff-ff     static
+  224.0.0.22            01-00-5e-00-00-16     static
+  224.0.0.251           01-00-5e-00-00-fb     static
+  239.255.255.250       01-00-5e-7f-ff-fa     static
+  255.255.255.255       ff-ff-ff-ff-ff-ff     static
+C:\Users\PC>
+```
+
+#### 8.2.8 Lab - Using Wireshark to Examine Ethernet Frames
+
+[In this lab](/assets/img/cyberops_associate/8.2.8_lab_using_wireshark_to_examine_ethernet_frames.pdf), you will use Wireshark to capture and view Ethernet Frames in order to investigate ARP and IP and MAC addressing. In addition, you will capture and analyze ICMP frames.
+
+### 8.3 ARP Issues
+#### 8.3.1 ARP Issues - ARP Broadcasts and ARP Spoofing
+
+As a broadcast frame, an ARP request is received and processed by every device on the local network. On a typical business network, these broadcasts would probably have minimal impact on network performance. However, if a large number of devices were to be powered up and all start accessing network services at the same time, there could be some reduction in performance for a short period of time, as shown in the figure. After the devices send out the initial ARP broadcasts and have learned the necessary MAC addresses, any impact on the network will be minimized.
+
+![Desktop view](/assets/img/cyberops_associate/arp_broadcasts.png)
+
+In some cases, the use of ARP can lead to a potential security risk. A threat actor can use ARP spoofing to perform an ARP poisoning attack. This is a technique used by a threat actor to reply to an ARP request for an IPv4 address that belongs to another device, such as the default gateway, as shown in the figure. The threat actor sends an ARP reply with its own MAC address. The receiver of the ARP reply will add the wrong MAC address to its ARP table and send these packets to the threat actor.
+Enterprise level switches include mitigation techniques known as dynamic ARP inspection (DAI). DAI is beyond the scope of this course.
+
+![Desktop view](/assets/img/cyberops_associate/arp_spoofing.png)
+
+#### 8.3.2 Video - ARP Spoofing
+
+<video src="/assets/img/cyberops_associate/cyberops_associate_arp_issues.mp4" width="601" controls></video>
+
+### 8.4 Address Resolution Protocol Summary
+#### 8.4.1 What Did I Learn in this Module?
+
+MAC and IP
+
+: There are two primary addresses that are assigned to a device on an Ethernet LAN; the IP address, which is logically assigned, and the MAC address which is physically assigned and is unique to the network interface. IP addresses are used to identify the address of the original source device and the final destination device. The destination IP address may be on the same IP network as the source or may be on a remote network. Layer 2 or physical addresses, such as Ethernet MAC addresses, have a different purpose. These addresses are used to deliver the data link frame with the encapsulated IP packet from one NIC to another NIC on the same network. If the destination IP address is on the same network, the destination MAC address will be that of the destination device.
+
+ARP
+
+: When using IPv4 for network communication, ARP is used to map the logical IPv4 address with the Layer 2 MAC address. In order to build an Ethernet frame, the destination MAC address must be known. When the destination IPv4 address is on the same network as the source, the ARP process sends the IPv4 address to all hosts on the network so that the host with the matching IPv4 address can reply with the corresponding MAC address. The sending device now has all of the information that is necessary to build the Layer 2 Ethernet frame. ARP provides two basic functions: resolving IPv4 addresses to MAC addresses and maintaining a table of IPv4 to MAC address mappings. The sending device will search its ARP table for a destination IPv4 address and a corresponding MAC address. If the packet’s destination IPv4 address is on the same network as the source IPv4 address, the device will search the ARP table for the destination IPv4 address. If it does not have an entry for the IPv4 address in its ARP table, the sending device sends out an ARP request to determine the destination MAC address. Only the device with the target IPv4 address associated with the ARP request will respond with an ARP reply. The ARP reply is encapsulated in an Ethernet frame using the following header information: the destination MAC address of the requesting host, the source MAC address of the replying host, and the type, which is a code that identifies the data as being for the ARP process. ARP messages have a type field value of 0x806. If the destination IPv4 address is on a different network than the source IPv4 address, the device will search the ARP table for the IPv4 address of the default gateway. IPv6 uses a similar process to ARP in IPv4. It is known as ICMPv6 Neighbor Discovery (ND). IPv6 uses neighbor solicitation and neighbor advertisement messages, similar to IPv4 ARP requests and ARP replies.
+
+ARP Issues
+
+: As a broadcast frame, an ARP request is received and processed by every device on the local network. On a typical business network, these broadcasts would probably have minimal impact on network performance. If a large number of devices were to be powered up and all start accessing network services at the same time, there could be some reduction in performance for a short period of time. After the devices send out the initial ARP broadcasts and have learned the necessary MAC addresses, any impact on the network will be minimized. Since the ARP request is a broadcast there is are potential security risks imposed. A threat actor can use ARP spoofing to perform an ARP poisoning attack by replying to an ARP request for an IPv4 address belonging to another device, such as the default gateway. The receiver of the ARP reply will add the wrong MAC address to its ARP table and send these packets to the threat actor.
+
+#### 8.4.2 Module 8: Address Resolution Protocol Quiz
+
+How does the ARP process use an IP address?
+- [ ] to determine the MAC address of the remote destination host
+- [ ] to determine the amount of time a packet takes when traveling from source to destination
+- [x] to determine the MAC address of a device on the same network
+- [ ] to determine the network number based on the number of bits in the IP address
+
+> The ARP process is used to complete the necessary mapping of IP and MAC addresses that are stored in the ARP table that is maintained by each node on a LAN. When the destination device is not on the same network as the source device, the MAC address of the Layer 3 device on the the source network is discovered and added to the ARP table of the source node.
+{: .prompt-info }
+
+What will a host do first when preparing a Layer 2 PDU for transmission to a host on the same Ethernet network?
+- [ ] It will initiate an ARP request to find the MAC address of the destination host.
+- [ ] It will query the local DNS server for the name of the destination host.
+- [ ] It will send the PDU to the router directly connected to the network.
+- [x] It will search the ARP table for the MAC address of the destination host.
+
+> In order to encapsulate a Layer 3 PDU into a frame, the sending host needs to know the MAC address of the destination host. The sending host first checks the ARP table. If a match is found in the table, the host uses the MAC address as the destination MAC in the frame. Otherwise, it will initiate an ARP request to obtain the destination MAC.
+{: .prompt-info }
+
+Refer to the exhibit. Which protocol was responsible for building the table that is shown?
+
+![Desktop view](/assets/img/cyberops_associate/8.4.2_quiz_3.png)
+
+- [x] ARP
+- [ ] ICMP
+- [ ] DHCP
+- [ ] DNS
+
+> The table that is shown corresponds to the output of the **arp -a** command, a command that is used on a Windows PC to display the ARP table.
+{: .prompt-info }
+
+When an IP packet is sent to a host on a remote network, what information is provided by ARP?
+- [ ] the MAC address of the switch port that connects to the sending host
+- [ ] the IP address of the default gateway
+- [ ] the IP address of the destination host
+- [x] the MAC address of the router interface closest to the sending host
+
+> When a host sends an IP packet to a destination on a different network, the Ethernet frame cannot be sent directly to the destination host because the host is not directly reachable in the same network. The Ethernet frame must be sent to another device known as the router or default gateway in order to forward the IP packet. ARP is used to discover the MAC address of the router (or default gateway) and use it as the destination MAC address in the frame header.
+{: .prompt-info }
+
+A host is trying to send a packet to a device on a remote LAN segment, but there are currently no mappings in the ARP cache. How will the device obtain a destination MAC address?
+- [ ] It will send an ARP request for the MAC address of the destination device.
+- [ ] It will send the frame and use the device MAC address as the destination.
+- [ ] It will send an ARP request to the DNS server for the destination MAC address.
+- [x] It will send an ARP request for the MAC address of the default gateway.
+- [ ] It will send the frame with a broadcast MAC address.
+
+> When sending a packet to a remote destination, a host will need to send the packet to a gateway on the local subnet.  Because the gateway will be the Layer 2 destination for the frame on this LAN segment, the destination MAC address must be the address of the gateway. If the host does not already have this address in the ARP cache, it must send an ARP request for the address of the gateway.
+{: .prompt-info }
+
+What is the aim of an ARP spoofing attack?
+- [x] to associate IP addresses to the wrong MAC address
+- [ ] to flood the network with ARP reply broadcasts
+- [ ] to fill switch MAC address tables with bogus addresses
+- [ ] to overwhelm network hosts with ARP requests
+
+> In an ARP spoofing attack, a malicious host intercepts ARP requests and replies to them so that network hosts will map an IP address to the MAC address of the malicious host.
+{: .prompt-info }
+
+A host needs to reach another host on a remote network, but the ARP cache has no mapping entries. To what destination address will the host send an ARP request?
+
+- [ ] the unicast IP address of the remote host
+- [ ] the subnet broadcast IP address
+- [ ] the unicast MAC address of the remote host
+- [x] the broadcast MAC address
+
+> ARP requests are sent when a host does not have an IP to MAC mapping for a destination in the ARP cache. ARP requests are sent to the Ethernet broadcast of FF:FF:FF:FF:FF:FF. In this example because the address of the remote host is unknown, an ARP request is sent to the Ethernet broadcast to resolve the MAC address of the default gateway that is used to reach the remote host.
+{: .prompt-info }
+
+Refer to the exhibit. PC1 issues an ARP request because it needs to send a packet to PC2. In this scenario, what will happen next?​
+
+![Desktop view](/assets/img/cyberops_associate/8.4.2_quiz_8.png)
+
+- [x] PC2 will send an ARP reply with the PC2 MAC address.
+- [ ] RT1 will send an ARP reply with the RT1 Fa0/0 MAC address.​
+- [ ] SW1 will send an ARP reply with the SW1 Fa0/1 MAC address.​
+- [ ] SW1 will send an ARP reply with the PC2 MAC address.​
+- [ ] RT1 will send an ARP reply with the PC2 MAC address.​
+
+> When a network device wants to communicate with another device on the same network, it sends a broadcast ARP request. In this case, the request will contain the IP address of PC2. The destination device (PC2) sends an ARP reply with the PC2 MAC address.
+{: .prompt-info }
+
+In what kind of memory is the ARP table stored on a device?
+- [x] RAM
+- [ ] flash
+- [ ] ROM
+- [ ] NVRAM
+
+> When a packet is sent to the data link layer to be encapsulated into an Ethernet frame, the device checks the ARP table that is stored in RAM. The ARP table is used to map the destination IPv4 address to a MAC address.
+{: .prompt-info }
+
+What is a characteristic of ARP messages?
+- [ ] ARP requests are broadcasts, and they are flooded out all ports by the switch.
+- [x] ARP replies are unicast.
+- [ ] ARP messages have a type field of 0x805.
+- [ ] ARP messages are encapsulated within an IPv4 header.
+
+> Because ARP requests are broadcasts, they are flooded out all ports by the switch except the receiving port. Only the device that originally sent the ARP request will receive the unicast ARP reply. ARP messages have a type field of 0x806. ARP messages are encapsulated directly within an Ethernet frame. There is no IPv4 header.
+{: .prompt-info }
+
+What statement describes the function of the Address Resolution Protocol?
+- [ ] ARP is used to discover the IP address of any host on the local network. 
+- [ ] ARP is used to discover the IP address of any host on a different network. 
+- [ ] ARP is used to discover the MAC address of any host on a different network. 
+- [x] ARP is used to discover the MAC address of any host on the local network. 
+
+> When a PC wants to send data on the network, it always knows the IP address of the destination.  However, it also needs to discover the MAC address of the destination. ARP is the protocol that is used to discover the MAC address of a host that belongs to the same network.   
+{: .prompt-info }
+
+Why would an attacker want to spoof a MAC address?
+- [ ] so that a switch on the LAN will start forwarding all frames toward the device that is under control of the attacker (that can then capture the LAN traffic)
+- [x] so that a switch on the LAN will start forwarding frames to the attacker instead of to the legitimate host
+- [ ] so that the attacker can capture traffic from multiple VLANs rather than from just the VLAN that is assigned to the port to which the attacker device is attached
+- [ ] so that the attacker can launch another type of attack in order to gain access to the switch
+
+> MAC address spoofing is used to bypass security measures by allowing an attacker to impersonate a legitimate host device, usually for the purpose of collecting network traffic.
+{: .prompt-info }
+
+What important information is examined in the Ethernet frame header by a Layer 2 device in order to forward the data onward?
+- [ ] Ethernet type
+- [ ] destination IP address
+- [ ] source MAC address
+- [ ] source IP address
+- [x] destination MAC address
+
+> The Layer 2 device, such as a switch, uses the destination MAC address to determine which path (interface or port) should be used to send the data onward to the destination device.
+{: .prompt-info }
+
+## 9 - The Transport Layer
+### 9.0 Introduction
+#### 9.0.1 Why Should I Take this Module?
+
+The transport layer is where, data is transported from one host to another. The transport layer uses two protocols: TCP and UDP. Think of TCP as getting a registered letter in the mail. You have to sign for it before the mail carrier will let you have it. UDP is more like a regular, stamped letter. Both protocols have there place in delivering data between a source and a destination.
+
+#### 9.0.2 What Will I Learn in this Module?
+
+Transport Layer Characteristics
+: Explain how transport layer protocols support network communication.
+
+Transport Layer Session Establishment
+: Explain how the transport layer establishes communication sessions.
+
+Transport Layer Reliability
+: Explain how the transport layer establishes reliable communications.
+
+### 9.1 Transport Layer Characteristics
+#### 9.1.1 Role of the Transport Layer
+
+The transport layer is responsible for logical communications between applications running on different hosts. This may include services such as establishing a temporary session between two hosts and the reliable transmission of information for an application.
+
+The transport layer is the link between the application layer and the lower layers that are responsible for network transmission.
+
+![Desktop view](/assets/img/cyberops_associate/role_of_the_transport_layer.png)
+
+The transport layer has no knowledge of the destination host type, the type of media over which the data must travel, the path taken by the data, the congestion on a link, or the size of the network.
+
+The transport layer includes two protocols:
+
+- Transmission Control Protocol (TCP)
+- User Datagram Protocol (UDP)
+
+#### 9.1.2 Transport Layer Responsibilities
+
+Tracking Individual Conversations
+
+: At the transport layer, each set of data flowing between a source application and a destination application is known as a conversation and is tracked separately. It is the responsibility of the transport layer to maintain and track these multiple conversations.
+
+: Most networks have a limitation on the amount of data that can be included in a single packet. Therefore, data must be divided into manageable pieces.
+
+Segmenting Data and Reassembling Segments
+
+: It is the transport layer responsibility to divide the application data into appropriately sized blocks. Depending on the transport layer protocol used, the transport layer blocks are called either segments or datagrams.
+
+: The transport layer divides the data into smaller blocks (i.e., segments or datagrams) that are easier to manage and transport.
+
+Add Header Information
+
+: The transport layer protocol also adds header information containing binary data organized into several fields to each block of data. It is the values in these fields that enable various transport layer protocols to perform different functions in managing data communication.
+
+: For instance, the header information is used by the receiving host to reassemble the blocks of data into a complete data stream for the receiving application layer program.
+
+: The transport layer ensures that even with multiple application running on a device, all applications receive the correct data.
+
+Identifying the Applications
+
+: The transport layer must be able to separate and manage multiple communications with different transport requirement needs. To pass data streams to the proper applications, the transport layer identifies the target application using an identifier called a port number. Each software process that needs to access the network is assigned a port number unique to that host.
+
+Conversation Multiplexing
+
+: Sending some types of data (e.g., a streaming video) across a network, as one complete communication stream, can consume all the available bandwidth. This would prevent other communication conversations from occurring at the same time. It would also make error recovery and retransmission of damaged data difficult.
+
+: The transport layer uses segmentation and multiplexing to enable different communication conversations to be interleaved on the same network.
+
+: Error checking can be performed on the data in the segment, to determine if the segment was altered during transmission.
+
+![Desktop view](/assets/img/cyberops_associate/conversation_multiplexing.png)
+
+#### 9.1.3 Transport Layer Protocols
+
+IP is concerned only with the structure, addressing, and routing of packets. IP does not specify how the delivery or transportation of the packets takes place.
+
+Transport layer protocols specify how to transfer messages between hosts, and are responsible for managing reliability requirements of a conversation. The transport layer includes the TCP and UDP protocols.
+
+Different applications have different transport reliability requirements. Therefore, TCP/IP provides two transport layer protocols, as shown in the figure.
+
+![Desktop view](/assets/img/cyberops_associate/transport_layer_protocols.webp)
+
+#### 9.1.4 Transmission Control Protocol (TCP)
+
+IP is concerned only with the structure, addressing, and routing of packets, from original sender to final destination. IP is not responsible for guaranteeing delivery or determining whether a connection between the sender and receiver needs to be established.
+
+TCP is considered a reliable, full-featured transport layer protocol, which ensures that all of the data arrives at the destination. TCP includes fields which ensure the delivery of the application data. These fields require additional processing by the sending and receiving hosts.
+
+> **Note**: TCP divides data into segments.
+
+TCP transport is analogous to sending packages that are tracked from source to destination. If a shipping order is broken up into several packages, a customer can check online to see the order of the delivery.
+
+TCP provides reliability and flow control using these basic operations:
+
+- Number and track data segments transmitted to a specific host from a specific application
+- Acknowledge received data
+- Retransmit any unacknowledged data after a certain amount of time
+- Sequence data that might arrive in wrong order
+- Send data at an efficient rate that is acceptable by the receiver
+
+In order to maintain the state of a conversation and track the information, TCP must first establish a connection between the sender and the receiver. This is why TCP is known as a connection-oriented protocol.
+
+![Desktop view](/assets/img/cyberops_associate/transmission_Control_protocol.gif)
+_See how TCP segments and acknowledgments are transmitted between sender and receiver_
+
+#### 9.1.5 TCP Header
+
+TCP is a stateful protocol which means it keeps track of the state of the communication session. To track the state of a session, TCP records which information it has sent and which information has been acknowledged. The stateful session begins with the session establishment and ends with the session termination.
+
+A TCP segment adds 20 bytes (i.e., 160 bits) of overhead when encapsulating the application layer data. The figure shows the fields in a TCP header.
+
+![Desktop view](/assets/img/cyberops_associate/tcp_header.png)
+
+#### 9.1.6 TCP Header Fields
+
+Source Port
+: A 16-bit field used to identify the source application by port number.
+
+Destination Port
+: A 16-bit field used to identify the destination application by port number.
+
+Sequence Number
+: A 32-bit field used for data reassembly purposes.
+
+Acknowledgment Number
+: A 32-bit field used to indicate that data has been received and the next byte expected from the source.
+
+Header Length
+: A 4-bit field known as ʺdata offsetʺ that indicates the length of the TCP segment header.
+
+Reserved
+: A 6-bit field that is reserved for future use.
+
+Control bits
+: A 6-bit field that includes bit codes, or flags, which indicate the purpose and function of the TCP segment.
+
+Window size
+: A 16-bit field used to indicate the number of bytes that can be accepted at one time.
+
+Checksum
+: A 16-bit field used for error checking of the segment header and data.
+
+Urgent
+: A 16-bit field used to indicate if the contained data is urgent.
+
+#### 9.1.7 User Datagram Protocol (UDP)
+
+UDP is a simpler transport layer protocol than TCP. It does not provide reliability and flow control, which means it requires fewer header fields. Because the sender and the receiver UDP processes do not have to manage reliability and flow control, this means UDP datagrams can be processed faster than TCP segments. UDP provides the basic functions for delivering datagrams between the appropriate applications, with very little overhead and data checking.
+
+> **Note**: UDP divides data into datagrams that are also referred to as segments.
+
+UDP is a connectionless protocol. Because UDP does not provide reliability or flow control, it does not require an established connection. Because UDP does not track information sent or received between the client and server, UDP is also known as a stateless protocol.
+
+UDP is also known as a best-effort delivery protocol because there is no acknowledgment that the data is received at the destination. With UDP, there are no transport layer processes that inform the sender of a successful delivery.
+
+UDP is like placing a regular, nonregistered, letter in the mail. The sender of the letter is not aware of the availability of the receiver to receive the letter. Nor is the post office responsible for tracking the letter or informing the sender if the letter does not arrive at the final destination.
+
+![Desktop view](/assets/img/cyberops_associate/user_datagram_protocol.gif)
+
+#### 9.1.8 UDP Header
+
+UDP is a stateless protocol, meaning neither the client, nor the server, tracks the state of the communication session. If reliability is required when using UDP as the transport protocol, it must be handled by the application.
+
+One of the most important requirements for delivering live video and voice over the network is that the data continues to flow quickly. Live video and voice applications can tolerate some data loss with minimal or no noticeable effect, and are perfectly suited to UDP.
+
+The blocks of communication in UDP are called datagrams, or segments. These datagrams are sent as best effort by the transport layer protocol.
+
+The UDP header is far simpler than the TCP header because it only has four fields and requires 8 bytes (i.e., 64 bits).
+
+![Desktop view](/assets/img/cyberops_associate/udp_header.png)
+
+#### 9.1.9 UDP Header Fields
+
+The table identifies and describes the four fields in a UDP header.
+
+Source Port
+: A 16-bit field used to identify the source application by port number.
+
+Destination Port
+: A 16-bit field used to identify the destination application by port number.
+
+Length
+: A 16-bit field that indicates the length of the UDP datagram header.
+
+Checksum
+: A 16-bit field used for error checking of the datagram header and data.
+
+#### 9.1.10 Socket Pairs
+
+The source and destination ports are placed within the segment. The segments are then encapsulated within an IP packet. The IP packet contains the IP address of the source and destination. The combination of the source IP address and source port number, or the destination IP address and destination port number is known as a socket.
+
+The PC is simultaneously requesting FTP and web services from the destination server.
+
+![Desktop view](/assets/img/cyberops_associate/socket_pairs.png)
+
+In the example, the FTP request generated by the PC includes the Layer 2 MAC addresses and the Layer 3 IP addresses. The request also identifies the source port number 1305 (i.e., dynamically generated by the host) and destination port, identifying the FTP services on port 21. The host also has requested a web page from the server using the same Layer 2 and Layer 3 addresses. However, it is using the source port number 1099 (i.e., dynamically generated by the host) and destination port identifying the web service on port 80.
+
+The socket is used to identify the server and service being requested by the client. A client socket might look like this, with 1099 representing the source port number: 192.168.1.5:1099
+
+The socket on a web server might be 192.168.1.7:80
+
+Together, these two sockets combine to form a socket pair: 192.168.1.5:1099, 192.168.1.7:80
+
+Sockets enable multiple processes, running on a client, to distinguish themselves from each other, and multiple connections to a server process to be distinguished from each other.
+
+The source port number acts as a return address for the requesting application. The transport layer keeps track of this port and the application that initiated the request so that when a response is returned, it can be forwarded to the correct application.
+
+#### 9.1.11 Check Your Understanding – Compare TCP and UDP Characteristics
+
+Less Overhead
+- [ ] TCP
+- [x] UDP
+
+Fast Transmission Requirements
+- [ ] TCP
+- [x] UDP
+
+No Acknowledgement of Receipt
+- [ ] TCP
+- [x] UDP
+
+Guaranteed Delivery
+- [x] TCP
+- [ ] UDP
+
+Ordered Delivery
+- [x] TCP
+- [ ] UDP
+
+Connectionless
+- [ ] TCP
+- [x] UDP
+
+Sequenced Message Segments
+- [x] TCP
+- [ ] UDP
+
+No Ordered Delivery
+- [ ] TCP
+- [x] UDP
+
+Flow Control
+- [x] TCP
+- [ ] UDP
+
+Session Establishment
+- [x] TCP
+- [ ] UDP
+
+### 9.2 Transport Layer Session Establishment
+#### 9.2.1 TCP Server Processes
+
+You already know the fundamentals of TCP. Understanding the role of port numbers will help you to grasp the details of the TCP communication process. In this topic, you will also learn about the TCP three-way handshake and session termination processes.
+
+Each application process running on a server is configured to use a port number. The port number is either automatically assigned or configured manually by a system administrator.
+
+An individual server cannot have two services assigned to the same port number within the same transport layer services. For example, a host running a web server application and a file transfer application cannot have both configured to use the same port, such as TCP port 80.
+
+An active server application assigned to a specific port is considered open, which means that the transport layer accepts, and processes segments addressed to that port. Any incoming client request addressed to the correct socket is accepted, and the data is passed to the server application. There can be many ports open simultaneously on a server, one for each active server application.
+
+Clients Sending TCP Requests
+: Client 1 is requesting web services and Client 2 is requesting email service of the same sever.
+
+![Desktop view](/assets/img/cyberops_associate/clients_sending_tcp_requests.png)
+
+Request Destination Ports
+: Client 1 is requesting web services using well-known destination port 80 (HTTP) and Client 2 is requesting email service using well-known port 25 (SMTP).
+
+![Desktop view](/assets/img/cyberops_associate/request_destination_ports.png)
+
+Request Source Ports
+: Client requests dynamically generate a source port number. In this case, Client 1 is using source port 49152 and Client 2 is using source port 51152.
+
+![Desktop view](/assets/img/cyberops_associate/request_source_ports.png)
+
+Response Destination Ports
+: When the server responds to the client requests, it reverses the destination and source ports of the initial request. Notice that the Server response to the web request now has destination port 49152 and the email response now has destination port 51152.
+
+![Desktop view](/assets/img/cyberops_associate/response_destination_ports.png)
+
+Response Source Ports
+
+: The source port in the server response is the original destination port in the initial requests.
+
+![Desktop view](/assets/img/cyberops_associate/response_source_ports.png)
+
+#### 9.2.2 TCP Connection Establishment
+
+In some cultures, when two persons meet, they often greet each other by shaking hands. Both parties understand the act of shaking hands as a signal for a friendly greeting. Connections on the network are similar. In TCP connections, the host client establishes the connection with the server using the three-way handshake process.
+
+Step 1. SYN
+
+: The initiating client requests a client-to-server communication session with the server.
+
+![Desktop view](/assets/img/cyberops_associate/syn.png)
+
+Step 2. ACK and SYN
+
+: The server acknowledges the client-to-server communication session and requests a server-to-client communication session.
+
+![Desktop view](/assets/img/cyberops_associate/ack_and_syn.png)
+
+Step 3. ACK
+
+: The initiating client acknowledges the server-to-client communication session.
+
+![Desktop view](/assets/img/cyberops_associate/ack.png)
+
+The three-way handshake validates that the destination host is available to communicate. In this example, host A has validated that host B is available.
+
+#### 9.2.3 Session Termination
+
+To close a connection, the Finish (FIN) control flag must be set in the segment header. To end each one-way TCP session, a two-way handshake, consisting of a FIN segment and an Acknowledgment (ACK) segment, is used. Therefore, to terminate a single conversation supported by TCP, four exchanges are needed to end both sessions. Either the client or the server can initiate the termination.
+
+In the example, the terms client and server are used as a reference for simplicity, but any two hosts that have an open session can initiate the termination process.
+
+Step 1. FIN
+
+: When the client has no more data to send in the stream, it sends a segment with the FIN flag set.
+
+![Desktop view](/assets/img/cyberops_associate/step1_fin.png)
+
+Step 2. ACK
+
+: The server sends an ACK to acknowledge the receipt of the FIN to terminate the session from client to server.
+
+![Desktop view](/assets/img/cyberops_associate/step2_ack.png)
+
+Step 3. FIN
+
+: The server sends a FIN to the client to terminate the server-to-client session.
+
+![Desktop view](/assets/img/cyberops_associate/step3_fin.png)
+
+Step 4. ACK
+
+: The client responds with an ACK to acknowledge the FIN from the server.
+
+![Desktop view](/assets/img/cyberops_associate/step4_ack.png)
+
+When all segments have been acknowledged, the session is closed.
+
+#### 9.2.4 TCP Three-way Handshake Analysis
+
+Hosts maintain state, track each data segment within a session, and exchange information about what data is received using the information in the TCP header. TCP is a full-duplex protocol, where each connection represents two one-way communication sessions. To establish the connection, the hosts perform a three-way handshake. As shown in the figure, control bits in the TCP header indicate the progress and status of the connection.
+
+These are the functions of the three-way handshake:
+
+- It establishes that the destination device is present on the network.
+- It verifies that the destination device has an active service and is accepting requests on the destination port number that the initiating client intends to use.
+- It informs the destination device that the source client intends to establish a communication session on that port number.
+
+After the communication is completed the sessions are closed, and the connection is terminated. The connection and session mechanisms enable TCP reliability function.
+
+![Desktop view](/assets/img/cyberops_associate/control_bits_field.png)
+_Control Bits Field_
+
+The six bits in the Control Bits field of the TCP segment header are also known as flags. A flag is a bit that is set to either on or off.
+
+The six control bits flags are as follows:
+
+- **URG**: Urgent pointer field significant
+- **ACK**: Acknowledgment flag used in connection establishment and session termination
+- **PSH**: Push function
+- **RST**: Reset the connection when an error or timeout occurs
+- **SYN**: Synchronize sequence numbers used in connection establishment
+- **FIN**: No more data from sender and used in session termination
+
+#### 9.2.5 Video – TCP 3-Way Handshake
+
+<video src="/assets/img/cyberops_associate/cyberops_associate _transport_layer_session_establishment.mp4" width="601" controls></video>
+
+#### 9.2.6 Lab – Using Wireshark to Observe the TCP 3-Way Handshake
+
+[In this lab](/assets/img/cyberops_associate/9.2.6_lab_using_wireshark_to_observe_the_tcp_3_way_handshake.pdf), you will complete the following objectives:
+
+- Part 1: Prepare the Hosts to Capture the Traffic
+- Part 2: Analyze the Packets using Wireshark
+- Part 3: View the Packets using tcpdump
+
+#### 9.2.7 Check Your Understanding – TCP Connection and Termination Process
+
+![Desktop view](/assets/img/cyberops_associate/check_tcp_connection_and_termination_process.png)
+
+### 9.3 Transport Layer Reliability
+#### 9.3.1 TCP Reliability - Guaranteed and Ordered Delivery
+
+The reason that TCP is the better protocol for some applications is because, unlike UDP, it resends dropped packets and numbers packets to indicate their proper order before delivery. TCP can also help maintain the flow of packets so that devices do not become overloaded.
+
+There may be times when TCP segments do not arrive at their destination. Other times, the TCP segments might arrive out of order. For the original message to be understood by the recipient, all the data must be received and the data in these segments must be reassembled into the original order. Sequence numbers are assigned in the header of each packet to achieve this goal. The sequence number represents the first data byte of the TCP segment.
+
+During session setup, an initial sequence number (ISN) is set. This ISN represents the starting value of the bytes that are transmitted to the receiving application. As data is transmitted during the session, the sequence number is incremented by the number of bytes that have been transmitted. This data byte tracking enables each segment to be uniquely identified and acknowledged. Missing segments can then be identified.
+
+The ISN does not begin at one but is effectively a random number. This is to prevent certain types of malicious attacks. For simplicity, we will use an ISN of 1 for the examples in this chapter.
+
+Segment sequence numbers indicate how to reassemble and reorder received segments, as shown in the figure.
+
+![Desktop view](/assets/img/cyberops_associate/tcp_segments_are_reordered_at_the_destination.png)
+_TCP Segments Are Reordered at the Destination_
+
+The receiving TCP process places the data from a segment into a receiving buffer. Segments are then placed in the proper sequence order and passed to the application layer when reassembled. Any segments that arrive with sequence numbers that are out of order are held for later processing. Then, when the segments with the missing bytes arrive, these segments are processed in order.
+
+#### 9.3.2 Video - TCP Reliability – Sequence Numbers and Acknowledgements
+
+One of the functions of TCP is to ensure that each segment reaches its destination. The TCP services on the destination host acknowledge the data that have been received by the source application.
+
+<video src="/assets/img/cyberops_associate/cyberops_associate_video_tcp_reliability_sequence_numbers_and_acknowledgements.mp4" width="601" controls></video>
+
+#### 9.3.3 TCP Reliability - Data Loss and Retransmission
+
+No matter how well designed a network is, data loss occasionally occurs. TCP provides methods of managing these segment losses. Among these is a mechanism to retransmit segments for unacknowledged data.
+
+The sequence (SEQ) number and acknowledgement (ACK) number are used together to confirm receipt of the bytes of data contained in the transmitted segments. The SEQ number identifies the first byte of data in the segment being transmitted. TCP uses the ACK number sent back to the source to indicate the next byte that the receiver expects to receive. This is called expectational acknowledgement.
+
+Prior to later enhancements, TCP could only acknowledge the next byte expected. For example, in the figure, using segment numbers for simplicity, host A sends segments 1 through 10 to host B. If all the segments arrive except for segments 3 and 4, host B would reply with acknowledgment specifying that the next segment expected is segment 3. Host A has no idea if any other segments arrived or not. Host A would, therefore, resend segments 3 through 10. If all the resent segments arrived successfully, segments 5 through 10 would be duplicates. This can lead to delays, congestion, and inefficiencies.
+
+![Desktop view](/assets/img/cyberops_associate/9.3.3_tcp_reliability.png)
+
+Host operating systems today typically employ an optional TCP feature called selective acknowledgment (SACK), negotiated during the three-way handshake. If both hosts support SACK, the receiver can explicitly acknowledge which segments (bytes) were received including any discontinuous segments. The sending host would therefore only need to retransmit the missing data. For example, in the next figure, again using segment numbers for simplicity, host A sends segments 1 through 10 to host B. If all the segments arrive except for segments 3 and 4, host B can acknowledge that it has received segments 1 and 2 (ACK 3), and selectively acknowledge segments 5 through 10 (SACK 5-10). Host A would only need to resend segments 3 and 4.
+
+![Desktop view](/assets/img/cyberops_associate/9.3.3_2_tcp_reliability.png)
+
+Note: TCP typically sends ACKs for every other packet, but other factors beyond the scope of this topic may alter this behavior.
+
+TCP uses timers to know how long to wait before resending a segment.
+
+#### 9.3.4 Video - TCP Reliability – Data Loss and Retransmission
+
+Play to view a lesson on TCP retransmission.
+
+<video src="/assets/img/cyberops_associate/cyberOps_associate_Video_tcp_reliability_data_loss_and_retransmission.mp4" width="601" controls></video>
+
+#### 9.3.5 TCP Flow Control - Window Size and Acknowledgments
+
+TCP also provides mechanisms for flow control. Flow control is the amount of data that the destination can receive and process reliably. Flow control helps maintain the reliability of TCP transmission by adjusting the rate of data flow between source and destination for a given session. To accomplish this, the TCP header includes a 16-bit field called the window size.
+
+The figure shows an example of window size and acknowledgments.
+
+![Desktop view](/assets/img/cyberops_associate/tcp_window_size_example.png)
+_TCP Window Size Example_
+
+The window size determines the number of bytes that can be sent before expecting an acknowledgment. The acknowledgment number is the number of the next expected byte.
+
+The window size is the number of bytes that the destination device of a TCP session can accept and process at one time. In this example, the PC B initial window size for the TCP session is 10,000 bytes. Starting with the first byte, byte number 1, the last byte PC A can send without receiving an acknowledgment is byte 10,000. This is known as the send window of PC A. The window size is included in every TCP segment so the destination can modify the window size at any time depending on buffer availability.
+
+The initial window size is agreed upon when the TCP session is established during the three-way handshake. The source device must limit the number of bytes sent to the destination device based on the window size of the destination. Only after the source device receives an acknowledgment that the bytes have been received, can it continue sending more data for the session. Typically, the destination will not wait for all the bytes for its window size to be received before replying with an acknowledgment. As the bytes are received and processed, the destination will send acknowledgments to inform the source that it can continue to send additional bytes.
+
+For example, it is typical that PC B would not wait until all 10,000 bytes have been received before sending an acknowledgment. This means PC A can adjust its send window as it receives acknowledgments from PC B. As shown in the figure, when PC A receives an acknowledgment with the acknowledgment number 2,921, which is the next expected byte. The PC A send window will increment 2,920 bytes. This changes the send window from 10,000 bytes to 12,920. PC A can now continue to send up to another 10,000 bytes to PC B as long as it does not send more than its new send window at 12,920.
+
+A destination sending acknowledgments as it processes bytes received, and the continual adjustment of the source send window, is known as sliding windows. In the previous example, the send window of PC A increments or slides over another 2,921 bytes from 10,000 to 12,920.
+
+If the availability of the destination’s buffer space decreases, it may reduce its window size to inform the source to reduce the number of bytes it should send without receiving an acknowledgment.
+
+> **Note**: Devices today use the sliding windows protocol. The receiver typically sends an acknowledgment after every two segments it receives. The number of segments received before being acknowledged may vary. The advantage of sliding windows is that it allows the sender to continuously transmit segments, as long as the receiver is acknowledging previous segments. The details of sliding windows are beyond the scope of this course.
+
+#### 9.3.6 TCP Flow Control - Maximum Segment Size (MSS)
+
+In the figure, the source is transmitting 1,460 bytes of data within each TCP segment. This is typically the Maximum Segment Size (MSS) that the destination device can receive. The MSS is part of the options field in the TCP header that specifies the largest amount of data, in bytes, that a device can receive in a single TCP segment. The MSS size does not include the TCP header. The MSS is typically included during the three-way handshake.
+
+![Desktop view](/assets/img/cyberops_associate/9.3.6.png)
+
+A common MSS is 1,460 bytes when using IPv4. A host determines the value of its MSS field by subtracting the IP and TCP headers from the Ethernet maximum transmission unit (MTU). On an Ethernet interface, the default MTU is 1500 bytes. Subtracting the IPv4 header of 20 bytes and the TCP header of 20 bytes, the default MSS size will be 1460 bytes, as shown in the figure.
+
+![Desktop view](/assets/img/cyberops_associate/9.3.6_2.png)
+
+#### 9.3.7 TCP Flow Control - Congestion Avoidance
+
+When congestion occurs on a network, it results in packets being discarded by the overloaded router. When packets containing TCP segments do not reach their destination, they are left unacknowledged. By determining the rate at which TCP segments are sent but not acknowledged, the source can assume a certain level of network congestion.
+
+Whenever there is congestion, retransmission of lost TCP segments from the source will occur. If the retransmission is not properly controlled, the additional retransmission of the TCP segments can make the congestion even worse. Not only are new packets with TCP segments introduced into the network, but the feedback effect of the retransmitted TCP segments that were lost will also add to the congestion. To avoid and control congestion, TCP employs several congestion handling mechanisms, timers, and algorithms.
+
+If the source determines that the TCP segments are either not being acknowledged or not acknowledged in a timely manner, then it can reduce the number of bytes it sends before receiving an acknowledgment. As illustrated in the figure, PC A senses there is congestion and therefore, reduces the number of bytes it sends before receiving an acknowledgment from PC B.
+
+![Desktop view](/assets/img/cyberops_associate/tcp_congestion_control.png)
+
+Acknowledgment numbers are for the next expected byte and not for a segment. The segment numbers used are simplified for illustration purposes.
+
+Notice that it is the source that is reducing the number of unacknowledged bytes it sends and not the window size determined by the destination.
+
+> **Note**: Explanations of actual congestion handling mechanisms, timers, and algorithms are beyond the scope of this course.
+
+#### 9.3.8 [Lab - Exploring Nmap](/assets/img/cyberops_associate/9.3.8_lab_exploring_nmap.pdf)
+
+Port scanning is usually part of a reconnaissance attack. There are a variety of port scanning methods that can be used. We will explore how to use the Nmap utility. Nmap is a powerful network utility that is used for network discovery and security auditing.
+
+#### 9.3.9 Check Your Understanding - Reliability and Flow Control
+
+What field is used by the destination host to reassemble segments into the original order?
+- [ ] Control Bits
+- [ ] Destination Port
+- [x] Sequence Number
+- [ ] Source Port
+- [ ] Window Size
+
+> The sequence number field is used by the destination host to reassemble segments into the original order.
+{: .prompt-info }
+
+What field is used to provide flow control?
+- [ ] Control Bits
+- [ ] Destination Port
+- [ ] Sequence Number
+- [ ] Source Port
+- [x] Window Size
+
+> The Window Size field is used to provide flow control.
+{: .prompt-info }
+
+What happens when a sending host senses there is congestion?
+- [ ] The receiving host increases the number of bytes it sends before receiving an acknowledgment from the sending host.
+- [ ] The receiving host reduces the number of bytes it sends before receiving an acknowledgment from the sending host.
+- [ ] The sending host increases the number of bytes it sends before receiving an acknowledgment from the destination host.
+- [x] The sending host reduces the number of bytes it sends before receiving an acknowledgment from the destination host.
+
+> When a sending host senses congestion, it reduces the number of bytes it sends before receiving an acknowledgment from the destination host.
+{: .prompt-info }
+
+### 9.4 The Transport Layer Summary
+#### 9.4.1 What Did I Learn in this Module?
+
+Transport Layer Characteristics
+
+: The transport layer is the link between the application layer and the lower layers of the OSI model that are responsible for network transmission. The transport layer is responsible for logical communications between applications running on different hosts. The transport layer includes TCP and UDP. Transport layer protocols specify how to transfer messages between hosts and is responsible for managing reliability requirements of a conversation. The transport layer is responsible for tracking conversations (sessions), segmenting data and reassembling segments, adding segment header information, identifying applications, and conversation multiplexing. TCP is stateful and reliable. It acknowledges data, resends lost data, and delivers data in sequenced order. TCP is used for email and the web. UDP is stateless and fast. It has low overhead, does not requires acknowledgments, does not resend lost data, and processes data in the order in which it arrives. UDP is used for VoIP and DNS.
+
+: The TCP and UDP transport layer protocols use port numbers to manage multiple simultaneous conversations. This is why the TCP and UDP header fields identify a source and destination application port number. The source and destination ports are placed within the segment. The segments are then encapsulated within an IP packet. The combination of the source IP address and source port number, or the destination IP address and destination port number are known as a sockets. The socket is used to identify the server and service being requested by the client and the host and application on the host that should handle the returning data. The range of port numbers is from 0 through 65535.
+
+Transport Layer Session Establishment
+
+: The three-way handshake establishes that the destination device is present on the network. It verifies that the destination device has an active service that is accepting requests on the destination port number that the initiating client intends to use. It also informs the destination device that the source client intends to establish a communication session on that port number. The six control bits flags are: URG, ACK, PSH, RST, SYN, and FIN and are used to identify the function of TCP messages that are sent. A client or server can terminate a single conversation supported by TCP by sending a sequence of TCP messages.
+
+Transport Layer Reliability
+
+: For the original message to be understood by the recipient, all the data must be received and the data in these segments must be reassembled into the original order. Sequence numbers are assigned in the header of each packet. No matter how well designed a network is, data loss occasionally occurs. TCP provides ways to manage segment losses. There is a mechanism to retransmit segments for unacknowledged data. Host operating systems today typically employ an optional TCP feature called selective acknowledgment (SACK), which is negotiated during the three-way handshake. If both hosts support SACK, the receiver can explicitly acknowledge which segments (bytes) were received including any discontinuous segments. The sending host would therefore only need to retransmit the missing data. Flow control helps maintain the reliability of TCP transmission by adjusting the rate of data flow between source and destination. To accomplish this, the TCP header includes a 16-bit field called the window size. The process of the destination sending acknowledgments as it processes bytes received and the continual adjustment of the source’s send window is known as sliding windows. A source might be transmitting 1,460 bytes of data within each TCP segment. This is the typical maximum segment size (MSS) that a destination device can receive. To avoid and control congestion, TCP employs several congestion handling mechanisms.
+
+#### 9.4.2 Module 9: The Transport Layer Quiz
+
+What are two roles of the transport layer in data communication on a network? (Choose two.)
+- [ ] providing frame delimiting to identify bits making up a frame
+- [x] tracking the individual communication between applications on the source and destination hosts
+- [ ] performing a cyclic redundancy check on the frame for errors
+- [ ] providing the interface between applications and the underlying network over which messages are transmitted
+- [x] identifying the proper application for each communication stream
+
+> The transport layer has several responsibilities. The primary responsibilities include the following:
+- Tracking the individual communication streams between applications on the source and destination hosts
+- Segmenting data at the source and reassembling the data at the destination
+- Identifying the proper application for each communication stream through the use of port numbers 
+{: .prompt-info }
+
+During a TCP session, a destination device sends an acknowledgment number to the source device. What does the acknowledgment number represent?
+- [ ] the last sequence number that was sent by the source
+- [ ] the total number of bytes that have been received
+- [x] the next byte that the destination expects to receive
+- [ ] one number more than the sequence number
+
+> The window size determines the number of bytes that will be sent before expecting an acknowledgement. The acknowledgement number is the number of the next expected byte. For example, if a host has received 3140 bytes, the host would respond with an acknowledgement number of 3141.
+{: .prompt-info }
+
+Which two services or protocols use the preferred UDP protocol for fast transmission and low overhead? (Choose two)
+- [ ] HTTP
+- [ ] FTP
+- [x] DNS
+- [ ] POP3
+- [x] VoIP
+
+> Both DNS and VoIP use UDP to provide low overhead services within a network implementation.​
+{: .prompt-info }
+
+Which transport layer feature is used to guarantee session establishment?
+- [ ] UDP ACK flag
+- [ ] TCP port number
+- [ ] UDP sequence number
+- [x] TCP 3-way handshake
+
+> TCP uses the 3-way handshake. UDP does not use this feature. The 3-way handshake ensures there is connectivity between the source and destination devices before transmission occurs.
+{: .prompt-info }
+
+Data is being sent from a source PC to a destination server. Which three statements correctly describe the function of TCP or UDP in this situation? (Choose three.)
+- [x] The source port field identifies the running application or service that will handle data returning to the PC.
+- [x] The UDP destination port number identifies the application or service on the server which will handle the data. 
+- [ ] The TCP source port number identifies the sending host on the network. 
+- [x] UDP segments are encapsulated within IP packets for transport across the network.
+- [ ] TCP is the preferred protocol when a function requires lower network overhead. 
+- [ ] The TCP process running on the PC randomly selects the destination port when establishing a session with the server. 
+
+> Layer 4 port numbers identify the application or service which will handle the data. The source port number is added by the sending device and will be the destination port number when the requested information is returned. Layer 4 segments are encapsulated within IP packets. UDP, not TCP, is used when low overhead is needed. A source IP address, not a TCP source port number, identifies the sending host on the network. Destination port numbers are specific ports that a server application or service monitors for requests.
+{: .prompt-info }
+
+What is the purpose of the TCP sliding window?
+- [ ] to inform a source to retransmit data from a specific point forward
+- [ ] to ensure that segments arrive in order at the destination
+- [x] to request that a source decrease the rate at which it transmits data
+- [ ] to end communication when data transmission is complete
+
+> The TCP sliding window allows a destination device to inform a source to slow down the rate of transmission. To do this, the destination device reduces the value contained in the window field of the segment. It is acknowledgment numbers that are used to specify retransmission from a specific point forward. It is sequence numbers that are used to ensure segments arrive in order. Finally, it is a FIN control bit that is used to end a communication session.
+{: .prompt-info }
+
+What happens if part of an FTP message is not delivered to the destination?
+- [x] The part of the FTP message that was lost is re-sent.
+- [ ] The message is lost because FTP does not use a reliable delivery method.
+- [ ] The FTP source host sends a query to the destination host.
+- [ ] The entire FTP message is re-sent.
+
+> Because FTP uses TCP as its transport layer protocol, sequence and acknowledgment numbers will identify the missing segments, which will be re-sent to complete the message.
+{: .prompt-info }
+
+Which two flags in the TCP header are used in a TCP three-way handshake to establish connectivity between two network devices? (Choose two.)
+- [ ] PSH
+- [x] SYN
+- [ ] FIN
+- [ ] URG
+- [ ] RST
+- [x] ACK
+
+> TCP uses the SYN and ACK flags in order to establish connectivity between two network devices.
+{: .prompt-info }
+
+Which tool is used to provide a list of open ports on network devices? 
+- [ ] Whois
+- [ ] Tracert
+- [x] Nmap
+- [ ] Ping
+
+> The Nmap tool is a port scanner that is used to determine which ports are open on a particular network device. A port scanner is used before launching an attack.
+{: .prompt-info }
+
+Which two fields are included in the TCP header but not in the UDP header? (Choose two.)
+- [x] window
+- [ ] source port
+- [x] sequence number
+- [ ] destination port
+- [ ] checksum
+
+> The sequence number and window fields are included in the TCP header but not in the UDP header.
+{: .prompt-info }
+
+Refer to the exhibit. Which three lines represent the TCP three-way handshake?
+
+![Desktop view](/assets/img/cyberops_associate/9.4.2_11.png)
+
+- [ ] lines 2, 8, and 9
+- [x] lines 2, 3, and 4
+- [ ] lines 1, 2, and 3
+- [ ] lines 6, 7, and 8
+- [ ] lines 4, 5, and 6
+
+> A three-way handshake is recognizable by the SYN flag being set first, then the SYN, ACK response, followed by the final ACK flag being sent in a packet.
+{: .prompt-info }
+
+What is a characteristic of a TCP server process?
+- [ ] A host running two different applications can have both configured to use the same server port.
+- [ ] An individual server can have two services assigned to the same port number within the same transport layer services.
+- [x] There can be many ports open simultaneously on a server, one for each active server application.
+- [ ] Every application process running on the server has to be configured to use a dynamic port number.
+
+> Each application process running on the server is configured to use a port number, either by default or manually, by a system administrator. An individual server cannot have two services assigned to the same port number within the same transport layer services. A host running a web server application and a file transfer application cannot have both configured to use the same server port. There can be many ports open simultaneously on a server, one for each active server application.
+{: .prompt-info }
