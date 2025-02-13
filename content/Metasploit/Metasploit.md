@@ -164,7 +164,6 @@ Para obtener y gestionar información de red en el sistema.
 - **`portfwd add -l <puerto local> -p <puerto remoto> -r <IP>`**: Reenvía tráfico desde un puerto local a un puerto y dirección IP en la máquina comprometida.
 - **`arp`**: Muestra la tabla ARP para ver los dispositivos conectados a la misma red.
 - **`netstat`**: Muestra todas las conexiones de red activas y puertos de escucha.
-
 ### 5. Escalada de Privilegios y Persistencia
 
 Para ganar persistencia o elevar los permisos de usuario.
