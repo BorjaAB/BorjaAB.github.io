@@ -7,4 +7,3 @@ Para empezar a estudiar [redes](https://borjaab.github.io/Network-%F0%9F%8C%90/C
 
 - [x] Conseguir página web
 - [ ] Completar conocimiento de redes
-- [ ] 
