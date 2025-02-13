@@ -4,7 +4,6 @@ date: 2025-02-12 20:23
 tags:
   - Redes
   - Básico
-  - datos
 ---
 ## Como funciona un ordenador
 
@@ -53,15 +52,15 @@ Las señales están compuestas por patrones eléctricos u ópticos (pulsos eléc
 
 ### Ancho de banda
 
-Los diferentes medios admiten la transferencia de bits a distintas velocidades. La velocidad de transferencia de datos se analiza en términos de ancho de banda y rendimiento.
+Los **diferentes medios** admiten la transferencia de bits a **diferentes velocidades**. La velocidad de transferencia de datos se analiza en términos de ancho de banda y rendimiento.
 
-El ancho de banda es la capacidad de un medio para transportar X cantidad de datos. Se mide en la cantidad de bits que (en teoría) puede enviarse a través de los medios en un segundo.
+El ancho de banda es la **capacidad** de un medio para **transportar X cantidad de datos**. Se mide en la cantidad de bits que (en teoría) puede enviarse a través de los medios en un segundo.
 
 Las propiedades de los medios, las tecnologías y las leyes de la física intervienen para determinar el ancho de banda.
 
 ### Rendimiento
 
-El rendimiento al igual que el ancho de banda es la medida de la transferencia de bits por los medios durante un período determinado, aunque generalmente no coinciden.
+El rendimiento al igual que el ancho de banda, es la **medida de la transferencia de bits por los medios durante un período determinado**, aunque **generalmente no coinciden**.
 
 Influye:
 - La cantidad de datos que se envían y reciben por la conexión.
@@ -79,5 +78,60 @@ Resumen:
 
 ## Componentes, tipos y conexiones de red
 
-### Clientes y servidores
+El mismo ordenador dependiendo del software que este ejecutando puede actuar como cliente y/o servidor.
+### Roles cliente y servidor
+
+Todos los dispositivos conectados a la red se consideran hosts.
+
+Los **servidores** son hosts con software el cual les ``permite proporcionar un servicio``.
+
+Los **clientes** son hosts con software el cual les ``permite solicitar información``.
+
+### Peer-to-peer o P2P
+
+Una red ``Peer-to-peer``: es una red la cual hay 2 hosts conectados directamente compartiéndose servicios.
+
+La **principal desventaja** de P2P es el ``rendimiento`` de un host puede ``verse afectado`` si hace como cliente y servidor a la vez.
+
+| **Ventajas**                                        | **Desventajas**                        |
+| --------------------------------------------------- | -------------------------------------- |
+| Fácil de configurar                                 | La administración no esta centralizada |
+| Menos complejo                                      | No son tan seguras                     |
+| Menor costo por la falta de necesidad de servidores | No son escalables                      |
+| Para tareas sencillas como compartir archivos       | Ralentiza el rendimiento de la red     |
+
+### Aplicaciones P2P
+
+Permiten que un dispositivo funcione como cliente y servidor, ``requieren una interfaz de usuario y un servicio ejecutándose en segundo plano``.
+
+Algunas apps P2P usa un sistema híbrido donde se descentraliza el intercambio de recursos, pero los índices que apuntan a las ubicaciones están almacenados en un directorio centralizado.
+
+### Múltiples Roles en la Red
+
+Un host con software de servidor proporciona servicio a uno o muchos clientes simultáneamente y a demás ejecutando más de un software tipo servidor.
+
+## Componentes de la red
+
+### Infraestructura de red
+
+Puede ser tan simple como un solo cable que une dos ordenadores o tan complejo como una red que abarca todo el planeta.
+
+La infraestructura se compone de 3 categorías:
+- Dispositivos finales: PC portátil, Ordenador escritorio, Impresora, Teléfono IP, Tablet, TV.
+- Dispositivos intermedios: Router, Switch, Firewall
+- Medios de red: Inalámbrico, LAN, WAN.
+
+Los dispositivos y los medios son los elementos físicos o hardware de red. El hardware esta compuesto por los componentes visibles de la plataforma de red, como portátil, Switch o Router.
+
+### Dispositivos finales
+
+El dispositivo final o host es el origen y destino de un mensaje transmitido a través de la red. Para identificar de forma exclusiva se usan las direcciones de host.
+
+
+
+## Opciones de conectividad al ISP
+
+
+
+## Redes inalámbricas y móviles
 
